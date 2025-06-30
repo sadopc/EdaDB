@@ -474,6 +474,7 @@ pub struct IndexStats {
 
 /// Ana Index Manager - tüm index'leri yönetir
 /// Bu struct, index yaratma, güncelleme, silme ve kullanma işlemlerini koordine eder
+#[derive(Debug)]
 pub struct IndexManager {
     /// Mevcut index'lerin konfigürasyonları
     configs: Arc<RwLock<HashMap<String, IndexConfig>>>,

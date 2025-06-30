@@ -1,12 +1,12 @@
 {
-  "checkpoint_id": "4aaeb109-07e4-4268-a091-72833640fdb5",
-  "timestamp": "2025-06-30T10:57:11.224527714Z",
+  "checkpoint_id": "44f85be0-a7bf-44ee-8cec-59c70e667261",
+  "timestamp": "2025-06-30T13:36:28.175780321Z",
   "documents": [
     {
       "metadata": {
-        "id": "03114d03-0530-411d-a9bd-5310c8ac2f73",
-        "created_at": "2025-06-30T10:57:11.224221538Z",
-        "updated_at": "2025-06-30T10:57:11.224415157Z",
+        "id": "49164f7f-f03f-4a4d-b2fd-a6988fe80c3e",
+        "created_at": "2025-06-30T13:36:28.175185812Z",
+        "updated_at": "2025-06-30T13:36:28.175522634Z",
         "version": 2
       },
       "data": {
@@ -21,9 +21,9 @@
     },
     {
       "metadata": {
-        "id": "5f9d5375-93b7-481b-97c2-dded36f20aca",
-        "created_at": "2025-06-30T10:57:11.224250671Z",
-        "updated_at": "2025-06-30T10:57:11.224250671Z",
+        "id": "e17f70eb-cb97-4409-b929-ddd2eec3fdea",
+        "created_at": "2025-06-30T13:36:28.175242179Z",
+        "updated_at": "2025-06-30T13:36:28.175242179Z",
         "version": 1
       },
       "data": {
@@ -37,9 +37,9 @@
     },
     {
       "metadata": {
-        "id": "58a87b60-7a4e-4575-8f1e-d7be67bce752",
-        "created_at": "2025-06-30T10:57:11.224264524Z",
-        "updated_at": "2025-06-30T10:57:11.224264524Z",
+        "id": "407b10b4-1473-4221-9316-bddd8e120c8a",
+        "created_at": "2025-06-30T13:36:28.175277599Z",
+        "updated_at": "2025-06-30T13:36:28.175277599Z",
         "version": 1
       },
       "data": {
@@ -53,9 +53,9 @@
     },
     {
       "metadata": {
-        "id": "50d04700-8517-4447-bc8b-2fa8daa34b2e",
-        "created_at": "2025-06-30T10:57:11.224277463Z",
-        "updated_at": "2025-06-30T10:57:11.224277463Z",
+        "id": "82e3750b-0684-465f-ae17-47f0bbe0e00d",
+        "created_at": "2025-06-30T13:36:28.175311387Z",
+        "updated_at": "2025-06-30T13:36:28.175311387Z",
         "version": 1
       },
       "data": {
@@ -71,8 +71,8 @@
   "storage_stats": {
     "total_documents": 4,
     "estimated_memory_usage": 1205,
-    "oldest_document": "2025-06-30T10:57:11.224221538Z",
-    "newest_document": "2025-06-30T10:57:11.224277463Z",
+    "oldest_document": "2025-06-30T13:36:28.175185812Z",
+    "newest_document": "2025-06-30T13:36:28.175311387Z",
     "average_version": 1.25
   },
   "indexes": [
@@ -82,7 +82,7 @@
         "salary"
       ],
       "index_type": "BTree",
-      "created_at": "2025-06-30T10:57:11.224432879Z",
+      "created_at": "2025-06-30T13:36:28.175560965Z",
       "unique": false
     },
     {
@@ -91,7 +91,7 @@
         "department"
       ],
       "index_type": "Hash",
-      "created_at": "2025-06-30T10:57:11.224454742Z",
+      "created_at": "2025-06-30T13:36:28.175606619Z",
       "unique": false
     },
     {
@@ -101,7 +101,7 @@
         "salary"
       ],
       "index_type": "Hash",
-      "created_at": "2025-06-30T10:57:11.224468228Z",
+      "created_at": "2025-06-30T13:36:28.175647945Z",
       "unique": false
     }
   ],

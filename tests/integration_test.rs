@@ -342,7 +342,7 @@ async fn test_concurrent_clients() -> Result<(), Box<dyn std::error::Error>> {
     // let client2 = DatabaseClient::connect(client_config).await?;
 
     // For now, just test single client concurrent operations
-    let mut tasks = Vec::new();
+    let mut tasks: Vec<tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>>> = Vec::new();
 
     for i in 0..5 {
         let client_clone = &client1; // Use reference since we can't clone DatabaseClient

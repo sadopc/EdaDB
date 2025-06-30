@@ -10,6 +10,15 @@ use uuid::Uuid;
 // Query modülünü declare edin
 pub mod query;
 
+// AST modülünü declare edin - Abstract Syntax Tree for SQL-like queries
+pub mod ast;
+
+// Query parser modülünü declare edin - SQL-like query language parser
+pub mod query_parser;
+
+// Query engine modülünü declare edin - SQL-like query execution engine  
+pub mod query_engine;
+
 // Index modülünü declare edin - gelişmiş indexing sistemi
 pub mod index;
 
@@ -28,11 +37,32 @@ pub mod network;
 // Client modülünü declare edin - database client API
 pub mod client;
 
+// Schema validation modülünü declare edin - JSON Schema validation sistemi
+pub mod schema;
+
 // Query modülünden public export'lar
 pub use query::{
     QueryBuilder, QueryableDatabase, Query, JsonPath,
     ComparisonOperator, SortDirection, ProjectionType,
     WhereClause, SortClause
+};
+
+// AST modülünden public export'lar
+pub use ast::{
+    Query as SqlQuery, SelectQuery, InsertQuery, UpdateQuery, DeleteQuery, CreateQuery,
+    Field, Assignment, Condition, OrderBy, Expression,
+    ComparisonOperator as SqlComparisonOperator, SortDirection as SqlSortDirection,
+    BinaryOperator
+};
+
+// Query parser modülünden public export'lar  
+pub use query_parser::{
+    parse, ParserError, TokenType, Token, Lexer, Parser
+};
+
+// Query engine modülünden public export'lar
+pub use query_engine::{
+    QueryEngine, QueryResult
 };
 
 // Index modülünden public export'lar
@@ -64,6 +94,13 @@ pub use network::{
 // Client modülünden public export'lar
 pub use client::{
     DatabaseClient, ClientConfig
+};
+
+// Schema validation modülünden public export'lar
+pub use schema::{
+    SchemaDefinition, FieldSchema, FieldType, SchemaBuilder, FieldSchemaBuilder,
+    ValidationError, ValidationResult, ErrorContext, SchemaRegistry, SchemaConfig,
+    ValidationEngine, ValidationOptions, Format, FormatValidator
 };
 
 /// Test için kullanılacak örnek kullanıcı verisi
@@ -131,6 +168,18 @@ pub enum DatabaseError {
     /// Transaction hatalarý için yeni error type
     #[error("Transaction error: {message}")]
     TransactionError { message: String },
+
+    /// Collection bulunamadığında döndürülür
+    #[error("Collection '{collection}' not found")]
+    CollectionNotFound { collection: String },
+
+    /// Schema validation hataları için
+    #[error("Schema validation error: {message}")]
+    SchemaValidationError { 
+        message: String,
+        field_path: Option<String>,
+        validation_errors: Vec<ValidationError>,
+    },
 }
 
 // Serde JSON hatalarını kendi hata tipimize dönüştürmek için From implementation
@@ -138,6 +187,17 @@ impl From<serde_json::Error> for DatabaseError {
     fn from(error: serde_json::Error) -> Self {
         DatabaseError::SerializationError {
             message: error.to_string(),
+        }
+    }
+}
+
+// Schema validation hatalarını kendi hata tipimize dönüştürmek için From implementation
+impl From<ValidationError> for DatabaseError {
+    fn from(error: ValidationError) -> Self {
+        DatabaseError::SchemaValidationError {
+            message: error.to_string(),
+            field_path: error.get_path().map(|p| p.to_string()),
+            validation_errors: vec![error],
         }
     }
 }
@@ -312,6 +372,7 @@ pub struct StorageStats {
 /// HashMap tabanlı in-memory storage implementasyonu
 /// Bu implementasyon tam CRUD operasyonlarını thread-safe şekilde destekler
 /// VE gelişmiş indexing sistemi ile optimize edilmiş query performansı sağlar
+#[derive(Debug)]
 pub struct MemoryStorage<T> {
     /// Ana veri depolama alanı - UUID'den Document'a mapping
     /// Arc<RwLock<>> kullanarak thread-safety sağlıyoruz
@@ -322,6 +383,14 @@ pub struct MemoryStorage<T> {
     /// Bu sistem sayesinde query'ler O(n) yerine O(1) veya O(log n) complexity'de çalışabilir
     /// Arc ile wrapped çünkü query engine ile paylaşılabilir olması gerekiyor
     index_manager: Arc<crate::index::IndexManager>,
+
+    /// Schema registry for validation
+    /// Thread-safe schema management system
+    schema_registry: Arc<SchemaRegistry>,
+
+    /// Collection name for this storage instance
+    /// Used for schema validation
+    collection_name: Option<String>,
 
     /// Maximum storage kapasitesi (opsiyonel limit)
     max_capacity: Option<usize>,
@@ -354,6 +423,8 @@ where
         Self {
             storage: Arc::new(RwLock::new(HashMap::new())),
             index_manager: Arc::new(crate::index::IndexManager::new()),
+            schema_registry: Arc::new(SchemaRegistry::new()),
+            collection_name: None,
             max_capacity: None,
             max_document_size: None,
         }
@@ -367,6 +438,8 @@ where
         Self {
             storage: Arc::new(RwLock::new(HashMap::with_capacity(capacity))),
             index_manager: Arc::new(crate::index::IndexManager::new()),
+            schema_registry: Arc::new(SchemaRegistry::new()),
+            collection_name: None,
             max_capacity: None,
             max_document_size: None,
         }
@@ -379,6 +452,8 @@ where
         Self {
             storage: Arc::new(RwLock::new(HashMap::with_capacity(max_capacity.min(1000)))),
             index_manager: Arc::new(crate::index::IndexManager::new()),
+            schema_registry: Arc::new(SchemaRegistry::new()),
+            collection_name: None,
             max_capacity: Some(max_capacity),
             max_document_size: None,
         }
@@ -391,8 +466,34 @@ where
         Self {
             storage: Arc::new(RwLock::new(HashMap::with_capacity(max_capacity.min(1000)))),
             index_manager: Arc::new(crate::index::IndexManager::new()),
+            schema_registry: Arc::new(SchemaRegistry::new()),
+            collection_name: None,
             max_capacity: Some(max_capacity),
             max_document_size: Some(max_document_size),
+        }
+    }
+
+    /// Create storage with collection name for schema validation
+    pub fn with_collection(collection_name: &str) -> Self {
+        Self {
+            storage: Arc::new(RwLock::new(HashMap::new())),
+            index_manager: Arc::new(crate::index::IndexManager::new()),
+            schema_registry: Arc::new(SchemaRegistry::new()),
+            collection_name: Some(collection_name.to_string()),
+            max_capacity: None,
+            max_document_size: None,
+        }
+    }
+
+    /// Create storage with collection name and shared schema registry
+    pub fn with_collection_and_registry(collection_name: &str, schema_registry: Arc<SchemaRegistry>) -> Self {
+        Self {
+            storage: Arc::new(RwLock::new(HashMap::new())),
+            index_manager: Arc::new(crate::index::IndexManager::new()),
+            schema_registry,
+            collection_name: Some(collection_name.to_string()),
+            max_capacity: None,
+            max_document_size: None,
         }
     }
 
@@ -459,6 +560,56 @@ where
     /// Arc cloning: Reference counting ile memory safe sharing sağlar
     pub fn get_index_manager(&self) -> Arc<crate::index::IndexManager> {
         Arc::clone(&self.index_manager)
+    }
+
+    /// Schema Registry'ye erişim sağlar - validation operations için kritik
+    pub fn get_schema_registry(&self) -> Arc<SchemaRegistry> {
+        Arc::clone(&self.schema_registry)
+    }
+
+    /// Register a schema for this storage's collection
+    pub fn register_schema(&self, schema: SchemaDefinition, config: Option<SchemaConfig>) -> Result<(), DatabaseError> {
+        if let Some(collection_name) = &self.collection_name {
+            self.schema_registry.register_schema(collection_name, schema, config)?;
+            Ok(())
+        } else {
+            Err(DatabaseError::SchemaValidationError {
+                message: "Cannot register schema: collection name not set".to_string(),
+                field_path: None,
+                validation_errors: vec![],
+            })
+        }
+    }
+
+    /// Validate document data against schema before operations
+    fn validate_document_data(&self, data: &T) -> Result<(), DatabaseError> 
+    where
+        T: Serialize
+    {
+        // Only validate if we have a collection name and T is serde_json::Value
+        if let Some(collection_name) = &self.collection_name {
+            if std::any::TypeId::of::<T>() == std::any::TypeId::of::<serde_json::Value>() {
+                let any_data = data as &dyn std::any::Any;
+                if let Some(value_data) = any_data.downcast_ref::<serde_json::Value>() {
+                    self.schema_registry.validate_document(collection_name, value_data, None)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Enable or disable schema validation for this collection
+    pub fn set_validation_enabled(&self, enabled: bool) -> Result<(), DatabaseError> {
+        if let Some(collection_name) = &self.collection_name {
+            self.schema_registry.set_validation_enabled(collection_name, enabled)?;
+            Ok(())
+        } else {
+            Err(DatabaseError::SchemaValidationError {
+                message: "Cannot configure validation: collection name not set".to_string(),
+                field_path: None,
+                validation_errors: vec![],
+            })
+        }
     }
 
     /// Index yönetimi için public interface - manual index oluşturma
@@ -616,6 +767,8 @@ impl<T: 'static> Clone for MemoryStorage<T> {
         Self {
             storage: Arc::clone(&self.storage),
             index_manager: Arc::clone(&self.index_manager), // Index manager'ı da clone et
+            schema_registry: Arc::clone(&self.schema_registry),
+            collection_name: self.collection_name.clone(),
             max_capacity: self.max_capacity,
             max_document_size: self.max_document_size,
         }
@@ -649,6 +802,9 @@ where
     /// PERFORMANS TRADE-OFF: Index güncelleme write performansını biraz düşürür ama
     /// read performansını dramatik olarak artırır. Bu trade-off çoğu use case için mantıklı
     async fn create(&self, data: T) -> Result<Document<T>, DatabaseError> {
+        // Schema validation first
+        self.validate_document_data(&data)?;
+        
         let document = Document::new(data);
 
         // Döküman boyutu kontrolü (eğer limit varsa)
@@ -679,6 +835,9 @@ where
     /// Belirli ID ile döküman oluşturur
     /// Bu method ID çakışmasını kontrol eder ve mevcut dökümanı korur
     async fn create_with_id(&self, id: Uuid, data: T) -> Result<Document<T>, DatabaseError> {
+        // Schema validation first
+        self.validate_document_data(&data)?;
+        
         let mut document = Document::new(data);
         document.metadata.id = id; // İstenen ID'yi atıyoruz
 
@@ -717,6 +876,9 @@ where
         // Önce tüm dökümanları hazırlıyoruz ve validate ediyoruz
         let mut prepared_docs = Vec::new();
         for data in documents {
+            // Schema validation for each document
+            self.validate_document_data(&data)?;
+            
             let doc = Document::new(data);
             self.validate_document_size(&doc)?;
             prepared_docs.push(doc);
@@ -859,6 +1021,9 @@ where
     /// Bu sequence atomic değil ama eventual consistency sağlar
     /// Production'da transaction system eklenebilir
     async fn update(&self, id: &Uuid, data: T) -> Result<Document<T>, DatabaseError> {
+        // Schema validation first
+        self.validate_document_data(&data)?;
+        
         // Önce mevcut dökümanı oku - eski index değerleri için gerekli
         let old_document = {
             let storage = self.storage.read()
@@ -910,6 +1075,9 @@ where
     /// Optimistic locking ile güncelleme
     /// Bu method concurrent update'leri önler ve data consistency sağlar
     async fn update_with_version(&self, id: &Uuid, data: T, expected_version: u64) -> Result<Document<T>, DatabaseError> {
+        // Schema validation first
+        self.validate_document_data(&data)?;
+        
         let mut storage = self.storage.write()
             .map_err(|e| DatabaseError::LockError {
                 reason: format!("Failed to acquire write lock for update_with_version: {}", e)
@@ -943,6 +1111,9 @@ where
     /// Upsert operasyonu - döküman varsa günceller, yoksa oluşturur
     /// Bu pattern NoSQL veritabanlarında çok yaygındır
     async fn upsert(&self, id: &Uuid, data: T) -> Result<(Document<T>, bool), DatabaseError> {
+        // Schema validation first
+        self.validate_document_data(&data)?;
+        
         let document = {
             let mut doc = Document::new(data);
             doc.metadata.id = *id; // İstenen ID'yi kullanıyoruz
@@ -977,6 +1148,11 @@ where
     async fn update_batch(&self, updates: Vec<(Uuid, T)>) -> Result<Vec<Document<T>>, DatabaseError> {
         if updates.is_empty() {
             return Ok(Vec::new());
+        }
+
+        // Schema validation for all documents first
+        for (_, data) in &updates {
+            self.validate_document_data(data)?;
         }
 
         let mut storage = self.storage.write()

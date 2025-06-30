@@ -248,7 +248,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("=============================");
 
     // Get storage statistics
-    let storage_ref = Arc::try_unwrap(db_arc).unwrap();
+    let storage_ref = Arc::try_unwrap(db_arc).expect("Failed to unwrap Arc");
     let stats = storage_ref.stats().await?;
 
     println!("  📈 Storage Statistics:");

@@ -601,6 +601,22 @@ impl From<DatabaseError> for ProtocolError {
                     "max_size": max_size
                 })),
             },
+
+            DatabaseError::CollectionNotFound { collection } => ProtocolError {
+                code: error_codes::DOCUMENT_NOT_FOUND,
+                message: format!("Collection '{}' not found", collection),
+                data: Some(serde_json::json!({ "collection": collection })),
+            },
+
+            DatabaseError::SchemaValidationError { message, field_path, validation_errors } => ProtocolError {
+                code: error_codes::INVALID_PARAMS,
+                message: format!("Schema validation error: {}", message),
+                data: Some(serde_json::json!({
+                    "field_path": field_path,
+                    "validation_errors": validation_errors.len(),
+                    "details": message
+                })),
+            },
         }
     }
 }

@@ -40,7 +40,28 @@ ordered-float = "4.2"
 # Production database'lerde performans için kritik
 bincode = "1.3"
 
+# JSON Schema validation için
+# Regex validation support
+regex = "1.10"
+
+# Email format validation
+email_address = "0.2"
+
+# URL format validation  
+url = "2.5"
+
+# Phone number validation
+phonenumber = "0.3"
+
+# ISO dates ve zaman validation
+iso8601 = "0.6"
+
+# Additional validation utilities
+once_cell = "1.19"
+
 [dev-dependencies]
 # Test için
 tokio-test = "0.4"
 fastrand = "2.0"
+# Performans testleri ve örnekler için rastgele veri üretimi
+rand = "0.8"
