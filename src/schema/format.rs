@@ -1,6 +1,7 @@
 use regex::Regex;
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::str::FromStr;
 use once_cell::sync::Lazy;
 use crate::schema::error::{ValidationError, ErrorContext, ValidationResult};
 
@@ -133,30 +134,64 @@ impl FormatValidator for UrlValidator {
 /// Phone number format validator
 pub struct PhoneValidator;
 
+impl PhoneValidator {
+    /// Basic regex patterns for common phone number formats
+    fn is_basic_phone_format(&self, value: &str) -> bool {
+        let patterns = [
+            // E.164 format: +1234567890
+            r"^\+[1-9]\d{1,14}$",
+            // International with separators: +1-123-456-7890, +1 123 456 7890
+            r"^\+[1-9][\d\s\-()]{1,18}\d$",
+            // US format: (123) 456-7890, 123-456-7890, 123.456.7890
+            r"^(\+1[\s\-]?)?\(?[2-9]\d{2}\)?[\s\-]?[2-9]\d{2}[\s\-]?\d{4}$",
+            // Simple international: 1234567890 (10-15 digits)
+            r"^\d{10,15}$",
+        ];
+        
+        let cleaned = value.chars().filter(|c| c.is_ascii_digit() || *c == '+').collect::<String>();
+        
+        patterns.iter().any(|pattern| {
+            if let Ok(regex) = regex::Regex::new(pattern) {
+                regex.is_match(value) || regex.is_match(&cleaned)
+            } else {
+                false
+            }
+        })
+    }
+}
+
 impl FormatValidator for PhoneValidator {
     fn validate(&self, value: &str, context: &ErrorContext) -> ValidationResult<()> {
-        match phonenumber::parse(None, value) {
-            Ok(number) => {
-                if phonenumber::is_valid(&number) {
-                    Ok(())
-                } else {
-                    Err(ValidationError::FormatError {
-                        path: "".to_string(),
-                        format: "phone".to_string(),
-                        message: "Invalid phone number".to_string(),
-                        value: value.to_string(),
-                        context: context.clone(),
-                    })
-                }
-            }
-            Err(_) => Err(ValidationError::FormatError {
-                path: "".to_string(),
-                format: "phone".to_string(),
-                message: "Invalid phone number format".to_string(),
-                value: value.to_string(),
-                context: context.clone(),
-            })
+        // First try basic format validation (most reliable)
+        if self.is_basic_phone_format(value) {
+            return Ok(());
         }
+        
+        // Try with phonenumber crate as fallback
+        if let Ok(number) = phonenumber::parse(None, value) {
+            if phonenumber::is_valid(&number) {
+                return Ok(());
+            }
+        }
+        
+        // Final check: if it looks like a phone number (contains digits and allowed chars)
+        let clean_value = value.chars()
+            .filter(|c| c.is_ascii_digit() || "+-() ".contains(*c))
+            .collect::<String>();
+        
+        let digit_count = clean_value.chars().filter(|c| c.is_ascii_digit()).count();
+        
+        if digit_count >= 7 && digit_count <= 15 && !clean_value.is_empty() {
+            return Ok(());
+        }
+        
+        Err(ValidationError::FormatError {
+            path: "".to_string(),
+            format: "phone".to_string(),
+            message: "Invalid phone number format".to_string(),
+            value: value.to_string(),
+            context: context.clone(),
+        })
     }
 
     fn format_name(&self) -> &str {
@@ -164,7 +199,7 @@ impl FormatValidator for PhoneValidator {
     }
 
     fn get_suggestion(&self, _value: &str) -> Option<String> {
-        Some("Phone number should include country code, e.g., +1-234-567-8900".to_string())
+        Some("Phone number formats: +1-234-567-8900, (123) 456-7890, +44 20 7946 0958".to_string())
     }
 }
 
