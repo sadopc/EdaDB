@@ -1,0 +1,110 @@
+{
+  "checkpoint_id": "d0e82de2-beaa-40f8-8abe-a528581d67ca",
+  "timestamp": "2025-06-30T07:16:33.737961809Z",
+  "documents": [
+    {
+      "metadata": {
+        "id": "c4efb7b0-eb47-4fff-b07b-42132df6ba49",
+        "created_at": "2025-06-30T07:16:33.737702945Z",
+        "updated_at": "2025-06-30T07:16:33.737860923Z",
+        "version": 2
+      },
+      "data": {
+        "age": 28,
+        "department": "Engineering",
+        "email": "alice@company.com",
+        "join_date": "2023-01-15",
+        "last_promotion": "2024-12-01",
+        "name": "Alice Johnson",
+        "salary": 95000
+      }
+    },
+    {
+      "metadata": {
+        "id": "ff4bf0e4-88f3-4da9-b978-ad3ba086db36",
+        "created_at": "2025-06-30T07:16:33.737728848Z",
+        "updated_at": "2025-06-30T07:16:33.737728848Z",
+        "version": 1
+      },
+      "data": {
+        "age": 34,
+        "department": "Sales",
+        "email": "bob@company.com",
+        "join_date": "2022-11-20",
+        "name": "Bob Smith",
+        "salary": 65000
+      }
+    },
+    {
+      "metadata": {
+        "id": "284b5154-73c3-4b2d-be6e-fe7d8bcd577f",
+        "created_at": "2025-06-30T07:16:33.737742226Z",
+        "updated_at": "2025-06-30T07:16:33.737742226Z",
+        "version": 1
+      },
+      "data": {
+        "age": 31,
+        "department": "Marketing",
+        "email": "carol@company.com",
+        "join_date": "2023-03-10",
+        "name": "Carol Davis",
+        "salary": 70000
+      }
+    },
+    {
+      "metadata": {
+        "id": "ed3dd593-9a02-4177-bcff-a8f33a816445",
+        "created_at": "2025-06-30T07:16:33.737755162Z",
+        "updated_at": "2025-06-30T07:16:33.737755162Z",
+        "version": 1
+      },
+      "data": {
+        "age": 45,
+        "department": "Engineering",
+        "email": "david@company.com",
+        "join_date": "2021-09-05",
+        "name": "David Wilson",
+        "salary": 95000
+      }
+    }
+  ],
+  "storage_stats": {
+    "total_documents": 4,
+    "estimated_memory_usage": 1205,
+    "oldest_document": "2025-06-30T07:16:33.737702945Z",
+    "newest_document": "2025-06-30T07:16:33.737755162Z",
+    "average_version": 1.25
+  },
+  "indexes": [
+    {
+      "name": "salary_idx",
+      "fields": [
+        "salary"
+      ],
+      "index_type": "BTree",
+      "created_at": "2025-06-30T07:16:33.737879445Z",
+      "unique": false
+    },
+    {
+      "name": "age_salary_idx",
+      "fields": [
+        "age",
+        "salary"
+      ],
+      "index_type": "Hash",
+      "created_at": "2025-06-30T07:16:33.737910130Z",
+      "unique": false
+    },
+    {
+      "name": "dept_idx",
+      "fields": [
+        "department"
+      ],
+      "index_type": "Hash",
+      "created_at": "2025-06-30T07:16:33.737897321Z",
+      "unique": false
+    }
+  ],
+  "last_lsn": 5,
+  "version": "1.0"
+}
