@@ -19,6 +19,15 @@ pub mod persistence;
 // Transaction modülünü declare edin - ACID transaction sistemi
 pub mod transaction;
 
+// Protocol modülünü declare edin - network communication protocols
+pub mod protocol;
+
+// Network modülünü declare edin - TCP server implementation
+pub mod network;
+
+// Client modülünü declare edin - database client API
+pub mod client;
+
 // Query modülünden public export'lar
 pub use query::{
     QueryBuilder, QueryableDatabase, Query, JsonPath,
@@ -45,6 +54,16 @@ pub use transaction::{
     IsolationLevel, TransactionStatus, TransactionId,
     LockType, LockManager, VersionManager,
     ResourceId, TransactionContext
+};
+
+// Network modülünden public export'lar
+pub use network::{
+    DatabaseServer, ServerConfig, ConnectionPool, ClientConnection
+};
+
+// Client modülünden public export'lar
+pub use client::{
+    DatabaseClient, ClientConfig
 };
 
 /// Test için kullanılacak örnek kullanıcı verisi

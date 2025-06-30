@@ -72,7 +72,7 @@ impl JsonPath {
 
 /// Query için kullanılacak karşılaştırma operatörleri
 /// Her operatör farklı bir filtreleme türünü temsil eder
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ComparisonOperator {
     Equal,              // ==
     NotEqual,           // !=
@@ -205,7 +205,7 @@ impl WhereClause {
 }
 
 /// Sıralama direction'ı
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SortDirection {
     Ascending,  // Küçükten büyüğe (A-Z, 1-9)
     Descending, // Büyükten küçüğe (Z-A, 9-1)

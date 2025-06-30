@@ -12,7 +12,7 @@ serde_json = "1.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
 # Asenkron runtime
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.0", features = ["full", "net", "io-util", "time", "sync", "macros", "rt-multi-thread"] }
 
 # Zaman işlemleri için
 chrono = { version = "0.4", features = ["serde"] }

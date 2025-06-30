@@ -1,12 +1,12 @@
 {
-  "checkpoint_id": "acd5d445-c941-4bfb-953e-871b7d51ff93",
-  "timestamp": "2025-06-30T07:16:33.739857066Z",
+  "checkpoint_id": "108c951f-db7d-4165-a12f-c8308d2eb4bc",
+  "timestamp": "2025-06-30T10:57:11.226378312Z",
   "documents": [
     {
       "metadata": {
-        "id": "c4efb7b0-eb47-4fff-b07b-42132df6ba49",
-        "created_at": "2025-06-30T07:16:33.738481824Z",
-        "updated_at": "2025-06-30T07:16:33.738481824Z",
+        "id": "03114d03-0530-411d-a9bd-5310c8ac2f73",
+        "created_at": "2025-06-30T10:57:11.225070077Z",
+        "updated_at": "2025-06-30T10:57:11.225070077Z",
         "version": 1
       },
       "data": {
@@ -21,9 +21,9 @@
     },
     {
       "metadata": {
-        "id": "ff4bf0e4-88f3-4da9-b978-ad3ba086db36",
-        "created_at": "2025-06-30T07:16:33.738485397Z",
-        "updated_at": "2025-06-30T07:16:33.738485397Z",
+        "id": "5f9d5375-93b7-481b-97c2-dded36f20aca",
+        "created_at": "2025-06-30T10:57:11.225073882Z",
+        "updated_at": "2025-06-30T10:57:11.225073882Z",
         "version": 1
       },
       "data": {
@@ -37,9 +37,9 @@
     },
     {
       "metadata": {
-        "id": "284b5154-73c3-4b2d-be6e-fe7d8bcd577f",
-        "created_at": "2025-06-30T07:16:33.738487262Z",
-        "updated_at": "2025-06-30T07:16:33.738487262Z",
+        "id": "58a87b60-7a4e-4575-8f1e-d7be67bce752",
+        "created_at": "2025-06-30T10:57:11.225075751Z",
+        "updated_at": "2025-06-30T10:57:11.225075751Z",
         "version": 1
       },
       "data": {
@@ -53,9 +53,9 @@
     },
     {
       "metadata": {
-        "id": "ed3dd593-9a02-4177-bcff-a8f33a816445",
-        "created_at": "2025-06-30T07:16:33.738488876Z",
-        "updated_at": "2025-06-30T07:16:33.738488876Z",
+        "id": "50d04700-8517-4447-bc8b-2fa8daa34b2e",
+        "created_at": "2025-06-30T10:57:11.225077465Z",
+        "updated_at": "2025-06-30T10:57:11.225077465Z",
         "version": 1
       },
       "data": {
@@ -69,9 +69,9 @@
     },
     {
       "metadata": {
-        "id": "687ee484-6c11-49c0-8971-ffef7ee714a5",
-        "created_at": "2025-06-30T07:16:33.738695666Z",
-        "updated_at": "2025-06-30T07:16:33.738695666Z",
+        "id": "1bdbbcfb-cfca-44cf-a932-015047843cab",
+        "created_at": "2025-06-30T10:57:11.225288020Z",
+        "updated_at": "2025-06-30T10:57:11.225288020Z",
         "version": 1
       },
       "data": {
@@ -85,9 +85,9 @@
     },
     {
       "metadata": {
-        "id": "6a08861f-1bd3-4b00-8c0e-5739d0437a2b",
-        "created_at": "2025-06-30T07:16:33.738705398Z",
-        "updated_at": "2025-06-30T07:16:33.738705398Z",
+        "id": "4f04e59c-4815-4de2-ab3a-e34a550a9cc8",
+        "created_at": "2025-06-30T10:57:11.225297468Z",
+        "updated_at": "2025-06-30T10:57:11.225297468Z",
         "version": 1
       },
       "data": {
@@ -103,18 +103,19 @@
   "storage_stats": {
     "total_documents": 6,
     "estimated_memory_usage": 1781,
-    "oldest_document": "2025-06-30T07:16:33.738481824Z",
-    "newest_document": "2025-06-30T07:16:33.738705398Z",
+    "oldest_document": "2025-06-30T10:57:11.225070077Z",
+    "newest_document": "2025-06-30T10:57:11.225297468Z",
     "average_version": 1.0
   },
   "indexes": [
     {
-      "name": "dept_idx",
+      "name": "age_salary_idx",
       "fields": [
-        "department"
+        "age",
+        "salary"
       ],
       "index_type": "Hash",
-      "created_at": "2025-06-30T07:16:33.738517732Z",
+      "created_at": "2025-06-30T10:57:11.225103672Z",
       "unique": false
     },
     {
@@ -123,17 +124,16 @@
         "salary"
       ],
       "index_type": "BTree",
-      "created_at": "2025-06-30T07:16:33.738492980Z",
+      "created_at": "2025-06-30T10:57:11.225081769Z",
       "unique": false
     },
     {
-      "name": "age_salary_idx",
+      "name": "dept_idx",
       "fields": [
-        "age",
-        "salary"
+        "department"
       ],
       "index_type": "Hash",
-      "created_at": "2025-06-30T07:16:33.738502964Z",
+      "created_at": "2025-06-30T10:57:11.225091730Z",
       "unique": false
     }
   ],

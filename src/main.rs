@@ -4,10 +4,12 @@
 
 use nosql_memory_db::{
     CrudDatabase, QueryableDatabase,
-    ComparisonOperator, IndexType,
+    ComparisonOperator, IndexType, SortDirection,
     WalConfig, WalFormat, PersistentMemoryStorage,
-    TransactionalStorage, IsolationLevel
+    TransactionalStorage, IsolationLevel,
+    DatabaseServer, DatabaseClient, ServerConfig, ClientConfig
 };
+use std::sync::Arc;
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
@@ -580,6 +582,380 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Yeni persistent storage oluştur (önceki drop edildi)
     let new_persistent_storage = PersistentMemoryStorage::new(wal_config).await?;
     demo_transaction_system(&new_persistent_storage).await?;
+
+    // ================================
+    // 14. NETWORKING & TCP SERVER DEMO
+    // ================================
+
+    println!("\n🌐 Step 14: Network & TCP Server Demo");
+    println!("=====================================");
+    println!("Database'imizi TCP server olarak başlatıp network üzerinden test edeceğiz!");
+    println!("Bu modern database'lerin network layer'ını gösterir (PostgreSQL, MongoDB gibi)");
+
+    // Networking demo'yu ayrı task'te çalıştır
+    demo_networking_system(new_persistent_storage).await?;
+
+    Ok(())
+}
+
+// Networking & TCP Server Demo - Modern database client/server architecture
+async fn demo_networking_system(persistent_storage: PersistentMemoryStorage) -> Result<(), Box<dyn std::error::Error>> {
+    println!("\n🌐 Network & TCP Server Demo");
+    println!("============================");
+    println!("Modern database sistemlerinin network architecture'ını demo edeceğiz!");
+
+    // ================================
+    // 1. SERVER CONFIGURATION & STARTUP
+    // ================================
+
+    println!("\n🚀 1. Database Server Configuration & Startup");
+    println!("==============================================");
+
+    // Server configuration
+    let server_config = ServerConfig {
+        bind_address: "127.0.0.1:5432".to_string(),  // PostgreSQL tribute
+        max_connections: 100,
+        connection_timeout: Duration::from_secs(300),
+        request_timeout: Duration::from_secs(30),
+        max_request_size: 16 * 1024 * 1024,
+        cleanup_interval: Duration::from_secs(60),
+        verbose_logging: true,
+    };
+
+    println!("  ✅ Server config: {}", server_config.bind_address);
+    println!("  ✅ Max connections: {}", server_config.max_connections);
+    println!("  ✅ Request timeout: {:?}", server_config.request_timeout);
+
+    // Create database server
+    let database_server = Arc::new(DatabaseServer::new(
+        server_config.clone(),
+        Arc::new(persistent_storage)
+    ).await?);
+
+    println!("  ✅ Database server created successfully");
+
+    // Start server in background
+    let server_clone = database_server.clone();
+    let server_handle = {
+        tokio::spawn(async move {
+            println!("  🚀 Starting TCP server on {}", server_config.bind_address);
+            if let Err(e) = server_clone.start().await {
+                eprintln!("Server error: {}", e);
+            }
+        })
+    };
+
+    // Wait for server to start
+    tokio::time::sleep(Duration::from_millis(1000)).await;
+    println!("  ✅ Server started and listening for connections");
+
+    // ================================
+    // 2. CLIENT CONNECTION & BASIC CRUD
+    // ================================
+
+    println!("\n📱 2. Client Connection & Basic CRUD Operations");
+    println!("===============================================");
+
+    // Create database client
+    let client_config = ClientConfig {
+        server_address: "127.0.0.1:5432".to_string(),
+        connect_timeout: Duration::from_secs(10),
+        request_timeout: Duration::from_secs(30),
+        max_connections: 10,
+        max_retries: 3,
+        retry_delay: Duration::from_millis(100),
+        verbose_logging: true,
+    };
+
+    let database_client = DatabaseClient::connect(client_config).await?;
+    println!("  ✅ Client connected to server");
+
+    // Test ping
+    let ping_time = database_client.ping().await?;
+    println!("  🏓 Ping test: {:?}", ping_time);
+
+    // CREATE operations
+    println!("\n  📝 CREATE Operations:");
+    let sample_users = vec![
+        json!({
+            "name": "Alice Network",
+            "email": "alice@network.com",
+            "age": 28,
+            "department": "Network Engineering",
+            "remote_ip": "192.168.1.100"
+        }),
+        json!({
+            "name": "Bob Server",
+            "email": "bob@server.com",
+            "age": 34,
+            "department": "Server Operations",
+            "remote_ip": "192.168.1.101"
+        }),
+        json!({
+            "name": "Carol Client",
+            "email": "carol@client.com",
+            "age": 31,
+            "department": "Client Development",
+            "remote_ip": "192.168.1.102"
+        }),
+    ];
+
+    let mut created_docs = Vec::new();
+    for (i, user_data) in sample_users.iter().enumerate() {
+        let result = database_client.create_document(user_data.clone()).await?;
+        created_docs.push(result.clone());
+        println!("    ✅ Created user {}: {} (ID: {})", 
+                i+1, 
+                user_data["name"].as_str().unwrap_or("Unknown"),
+                result.id.to_string().chars().take(8).collect::<String>());
+    }
+
+    // READ operations
+    println!("\n  📖 READ Operations:");
+    for (i, doc) in created_docs.iter().enumerate() {
+        if let Some(data) = database_client.read_document(doc.id).await? {
+            println!("    ✅ Read user {}: {} ({})", 
+                    i+1, 
+                    data["name"].as_str().unwrap_or("Unknown"),
+                    data["email"].as_str().unwrap_or("No email"));
+        }
+    }
+
+    // UPDATE operations
+    println!("\n  ✏️  UPDATE Operations:");
+    if let Some(first_doc) = created_docs.first() {
+        let mut updated_data = sample_users[0].clone();
+        updated_data["age"] = json!(29);
+        updated_data["last_network_activity"] = json!("2024-01-20T15:30:00Z");
+        updated_data["status"] = json!("online");
+
+        let update_result = database_client.update_document(first_doc.id, updated_data).await?;
+        println!("    ✅ Updated user: {} (version: {})", 
+                first_doc.id.to_string().chars().take(8).collect::<String>(),
+                update_result.version);
+    }
+
+    // ================================
+    // 3. QUERY OPERATIONS OVER NETWORK
+    // ================================
+
+    println!("\n🔍 3. Query Operations Over Network");
+    println!("===================================");
+
+    // Simple field query
+    let network_engineers = database_client
+        .find_by_field("department", json!("Network Engineering"))
+        .await?;
+    println!("  📊 Network Engineers found: {} documents", network_engineers.len());
+
+    // Advanced query with builder pattern
+    let age_query_results = database_client
+        .query()
+        .where_field("age", ComparisonOperator::GreaterThan, json!(30))
+        .sort_by("age", SortDirection::Ascending)
+        .limit(10)
+        .execute()
+        .await?;
+    println!("  📊 Users over 30: {} documents", age_query_results.len());
+
+    // Range query
+    let ip_range_results = database_client
+        .find_by_range("remote_ip", Some(json!("192.168.1.100")), Some(json!("192.168.1.200")))
+        .await?;
+    println!("  📊 Users in IP range: {} documents", ip_range_results.len());
+
+    // ================================
+    // 4. INDEX OPERATIONS
+    // ================================
+
+    println!("\n🏷️  4. Index Operations Over Network");
+    println!("====================================");
+
+    // Create indexes
+    database_client.create_index(
+        "department_idx",
+        vec!["department".to_string()],
+        IndexType::Hash
+    ).await?;
+    println!("  ✅ Created department hash index");
+
+    database_client.create_index(
+        "age_idx", 
+        vec!["age".to_string()],
+        IndexType::BTree
+    ).await?;
+    println!("  ✅ Created age B-tree index");
+
+    // List indexes
+    let indexes = database_client.list_indexes().await?;
+    println!("  📊 Total indexes: {}", indexes.len());
+    for (i, index) in indexes.iter().enumerate() {
+        if let Some(name) = index.get("name") {
+            println!("    {}. {}", i+1, name.as_str().unwrap_or("Unknown"));
+        }
+    }
+
+    // ================================
+    // 5. TRANSACTION OPERATIONS OVER NETWORK
+    // ================================
+
+    println!("\n🔄 5. Network Transaction Operations");
+    println!("====================================");
+
+    // Begin network transaction
+    let network_tx = database_client.begin_transaction(IsolationLevel::ReadCommitted).await?;
+    println!("  🔄 Network transaction started: {}", 
+             network_tx.id().to_string().chars().take(8).collect::<String>());
+
+    // Transactional operations
+    let tx_data = json!({
+        "name": "Transaction User",
+        "email": "tx@network.com",
+        "age": 25,
+        "department": "Distributed Systems",
+        "created_via": "network_transaction"
+    });
+
+    let tx_result = network_tx.create_document(tx_data).await?;
+    println!("    ✅ Created document in transaction: {}", 
+             tx_result.id.to_string().chars().take(8).collect::<String>());
+
+    // Update in transaction
+    let tx_update_data = json!({
+        "name": "Transaction User Updated",
+        "email": "tx@network.com",
+        "age": 26,
+        "department": "Distributed Systems",
+        "updated_via": "network_transaction"
+    });
+
+    let _tx_update_result = network_tx.update_document(tx_result.id, tx_update_data).await?;
+    println!("    ✅ Updated document in transaction");
+
+    // Commit network transaction
+    network_tx.commit().await?;
+    println!("  🎯 Network transaction committed successfully");
+
+    // ================================
+    // 6. SERVER STATISTICS
+    // ================================
+
+    println!("\n📊 6. Server Statistics & Monitoring");
+    println!("====================================");
+
+    let server_stats = database_client.get_server_stats().await?;
+    println!("  📈 Server Performance Metrics:");
+    let uptime_seconds = chrono::Utc::now()
+        .signed_duration_since(server_stats.started_at)
+        .num_seconds();
+    println!("    • Server uptime: {} seconds", uptime_seconds);
+    println!("    • Total requests processed: {}", 
+             server_stats.total_requests);
+    println!("    • Active connections: {}", 
+             server_stats.active_connections);
+    println!("    • Memory usage: {} bytes", 
+             server_stats.memory_usage_bytes);
+    
+    if server_stats.avg_response_time_ms > 0.0 {
+        println!("    • Average response time: {:.2}ms", 
+                 server_stats.avg_response_time_ms);
+    }
+
+    // Client statistics
+    let client_stats = database_client.get_client_stats().await?;
+    println!("  📈 Client Performance Metrics:");
+    println!("    • Requests sent: {}", client_stats.requests_sent);
+    println!("    • Responses received: {}", client_stats.responses_received);
+    println!("    • Average request time: {:.2}ms", client_stats.avg_request_time_ms);
+    println!("    • Total bytes sent: {}", client_stats.bytes_sent);
+    println!("    • Total bytes received: {}", client_stats.bytes_received);
+
+    // ================================
+    // 7. MULTIPLE CLIENT CONNECTIONS
+    // ================================
+
+    println!("\n🔀 7. Multiple Client Connections Demo");
+    println!("======================================");
+
+    // Create multiple clients
+    let mut clients = Vec::new();
+    for i in 0..3 {
+        let client = DatabaseClient::connect_default().await?;
+        clients.push(client);
+        println!("  ✅ Client {} connected", i+1);
+    }
+
+    // Concurrent operations
+    let mut handles = Vec::new();
+    for (i, client) in clients.into_iter().enumerate() {
+        let handle = tokio::spawn(async move {
+            let data = json!({
+                "name": format!("Concurrent User {}", i+1),
+                "email": format!("user{}@concurrent.com", i+1),
+                "client_id": i+1,
+                "created_concurrently": true
+            });
+
+            match client.create_document(data).await {
+                Ok(result) => {
+                    println!("    ✅ Client {} created document: {}", 
+                            i+1, 
+                            result.id.to_string().chars().take(8).collect::<String>());
+                    Ok(())
+                }
+                Err(e) => {
+                    println!("    ❌ Client {} error: {}", i+1, e);
+                    Err(e)
+                }
+            }
+        });
+        handles.push(handle);
+    }
+
+    // Wait for all concurrent operations
+    for handle in handles {
+        let _ = handle.await?;
+    }
+
+    println!("  ✅ All concurrent operations completed");
+
+    // ================================
+    // 8. CLEANUP & SHUTDOWN
+    // ================================
+
+    println!("\n🧹 8. Cleanup & Shutdown");
+    println!("========================");
+
+    // Final server stats
+    let final_stats = database_client.get_server_stats().await?;
+    println!("  📊 Final server statistics:");
+    println!("    • Total requests: {}", final_stats.total_requests);
+    println!("    • Active connections: {}", final_stats.active_connections);
+
+    // Shutdown server
+    database_server.shutdown().await?;
+    server_handle.abort(); // Stop the server task
+    println!("  ✅ Database server shut down gracefully");
+
+    println!("\n🎉 Network Demo Completed Successfully!");
+    println!("=======================================");
+    println!("You've successfully demonstrated:");
+    println!("  ✅ TCP Database Server (PostgreSQL-style)");
+    println!("  ✅ JSON-RPC Protocol Communication");
+    println!("  ✅ Client-Server CRUD Operations");
+    println!("  ✅ Network Query Processing");
+    println!("  ✅ Distributed Transactions");
+    println!("  ✅ Connection Pool Management");
+    println!("  ✅ Performance Monitoring");
+    println!("  ✅ Concurrent Client Handling");
+
+    println!("\n🚀 Your database is now ready for production deployment!");
+    println!("Modern features implemented:");
+    println!("  • WAL + Persistence + ACID Transactions");
+    println!("  • Advanced Query Engine + Indexing");
+    println!("  • TCP Network Server + Client Library");
+    println!("  • Connection Pooling + Performance Monitoring");
+    println!("  • Multi-client Concurrency Support");
 
     Ok(())
 }

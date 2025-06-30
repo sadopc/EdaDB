@@ -1,12 +1,12 @@
 {
-  "checkpoint_id": "4aaa90b0-2917-4677-ad39-2ff290bdc59d",
-  "timestamp": "2025-06-30T07:16:33.738760399Z",
+  "checkpoint_id": "2279579b-e1e3-46ab-993a-39acfedfb905",
+  "timestamp": "2025-06-30T10:57:11.225305709Z",
   "documents": [
     {
       "metadata": {
-        "id": "c4efb7b0-eb47-4fff-b07b-42132df6ba49",
-        "created_at": "2025-06-30T07:16:33.737702945Z",
-        "updated_at": "2025-06-30T07:16:33.737860923Z",
+        "id": "03114d03-0530-411d-a9bd-5310c8ac2f73",
+        "created_at": "2025-06-30T10:57:11.224221538Z",
+        "updated_at": "2025-06-30T10:57:11.224415157Z",
         "version": 2
       },
       "data": {
@@ -21,9 +21,9 @@
     },
     {
       "metadata": {
-        "id": "ff4bf0e4-88f3-4da9-b978-ad3ba086db36",
-        "created_at": "2025-06-30T07:16:33.737728848Z",
-        "updated_at": "2025-06-30T07:16:33.737728848Z",
+        "id": "5f9d5375-93b7-481b-97c2-dded36f20aca",
+        "created_at": "2025-06-30T10:57:11.224250671Z",
+        "updated_at": "2025-06-30T10:57:11.224250671Z",
         "version": 1
       },
       "data": {
@@ -37,9 +37,9 @@
     },
     {
       "metadata": {
-        "id": "284b5154-73c3-4b2d-be6e-fe7d8bcd577f",
-        "created_at": "2025-06-30T07:16:33.737742226Z",
-        "updated_at": "2025-06-30T07:16:33.737742226Z",
+        "id": "58a87b60-7a4e-4575-8f1e-d7be67bce752",
+        "created_at": "2025-06-30T10:57:11.224264524Z",
+        "updated_at": "2025-06-30T10:57:11.224264524Z",
         "version": 1
       },
       "data": {
@@ -53,9 +53,9 @@
     },
     {
       "metadata": {
-        "id": "ed3dd593-9a02-4177-bcff-a8f33a816445",
-        "created_at": "2025-06-30T07:16:33.737755162Z",
-        "updated_at": "2025-06-30T07:16:33.737755162Z",
+        "id": "50d04700-8517-4447-bc8b-2fa8daa34b2e",
+        "created_at": "2025-06-30T10:57:11.224277463Z",
+        "updated_at": "2025-06-30T10:57:11.224277463Z",
         "version": 1
       },
       "data": {
@@ -69,9 +69,9 @@
     },
     {
       "metadata": {
-        "id": "687ee484-6c11-49c0-8971-ffef7ee714a5",
-        "created_at": "2025-06-30T07:16:33.738094483Z",
-        "updated_at": "2025-06-30T07:16:33.738094483Z",
+        "id": "1bdbbcfb-cfca-44cf-a932-015047843cab",
+        "created_at": "2025-06-30T10:57:11.224669395Z",
+        "updated_at": "2025-06-30T10:57:11.224669395Z",
         "version": 1
       },
       "data": {
@@ -85,9 +85,9 @@
     },
     {
       "metadata": {
-        "id": "6a08861f-1bd3-4b00-8c0e-5739d0437a2b",
-        "created_at": "2025-06-30T07:16:33.738116455Z",
-        "updated_at": "2025-06-30T07:16:33.738116455Z",
+        "id": "4f04e59c-4815-4de2-ab3a-e34a550a9cc8",
+        "created_at": "2025-06-30T10:57:11.224691944Z",
+        "updated_at": "2025-06-30T10:57:11.224691944Z",
         "version": 1
       },
       "data": {
@@ -103,8 +103,8 @@
   "storage_stats": {
     "total_documents": 6,
     "estimated_memory_usage": 1781,
-    "oldest_document": "2025-06-30T07:16:33.737702945Z",
-    "newest_document": "2025-06-30T07:16:33.738116455Z",
+    "oldest_document": "2025-06-30T10:57:11.224221538Z",
+    "newest_document": "2025-06-30T10:57:11.224691944Z",
     "average_version": 1.1666666666666667
   },
   "indexes": [
@@ -114,7 +114,16 @@
         "salary"
       ],
       "index_type": "BTree",
-      "created_at": "2025-06-30T07:16:33.737879445Z",
+      "created_at": "2025-06-30T10:57:11.224432879Z",
+      "unique": false
+    },
+    {
+      "name": "dept_idx",
+      "fields": [
+        "department"
+      ],
+      "index_type": "Hash",
+      "created_at": "2025-06-30T10:57:11.224454742Z",
       "unique": false
     },
     {
@@ -124,16 +133,7 @@
         "salary"
       ],
       "index_type": "Hash",
-      "created_at": "2025-06-30T07:16:33.737910130Z",
-      "unique": false
-    },
-    {
-      "name": "dept_idx",
-      "fields": [
-        "department"
-      ],
-      "index_type": "Hash",
-      "created_at": "2025-06-30T07:16:33.737897321Z",
+      "created_at": "2025-06-30T10:57:11.224468228Z",
       "unique": false
     }
   ],

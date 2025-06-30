@@ -166,7 +166,7 @@ pub enum TransactionStatus {
 
 /// Transaction Isolation Levels
 /// SQL standard'ına uygun isolation levels
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IsolationLevel {
     /// En düşük isolation - dirty reads, non-repeatable reads, phantom reads mümkün
     ReadUncommitted,
@@ -585,29 +585,31 @@ impl LockManager {
     /// Transaction'ın tüm lock'larını serbest bırak
     pub async fn release_all_locks(&self, transaction_id: &TransactionId) -> Result<(), DatabaseError> {
         // Granted locks'tan kaldır
-        let mut granted_locks = self.granted_locks.write().map_err(|e| {
-            DatabaseError::LockError {
-                reason: format!("Failed to write granted locks for release: {}", e)
-            }
-        })?;
-
-        let mut resources_to_check = Vec::new();
-
-        for (resource_id, locks) in granted_locks.iter_mut() {
-            locks.retain(|lock| {
-                if lock.transaction_id == *transaction_id {
-                    resources_to_check.push(resource_id.clone());
-                    false
-                } else {
-                    true
+        let resources_to_check = {
+            let mut granted_locks = self.granted_locks.write().map_err(|e| {
+                DatabaseError::LockError {
+                    reason: format!("Failed to write granted locks for release: {}", e)
                 }
-            });
-        }
+            })?;
 
-        // Boş kalan resource entry'lerini temizle
-        granted_locks.retain(|_, locks| !locks.is_empty());
+            let mut resources_to_check = Vec::new();
 
-        drop(granted_locks); // Lock'ı serbest bırak
+            for (resource_id, locks) in granted_locks.iter_mut() {
+                locks.retain(|lock| {
+                    if lock.transaction_id == *transaction_id {
+                        resources_to_check.push(resource_id.clone());
+                        false
+                    } else {
+                        true
+                    }
+                });
+            }
+
+            // Boş kalan resource entry'lerini temizle
+            granted_locks.retain(|_, locks| !locks.is_empty());
+
+            resources_to_check
+        }; // granted_locks guard burada scope'tan çıkıyor
 
         // Wait queue'dan kaldır
         for resource_id in &resources_to_check {
@@ -902,20 +904,21 @@ impl TransactionManager {
     /// Transaction commit
     pub async fn commit_transaction(&self, transaction_id: &TransactionId) -> Result<(), DatabaseError> {
         // Transaction context'i al
-        let mut active_transactions = self.active_transactions.write().map_err(|e| {
-            DatabaseError::LockError {
-                reason: format!("Failed to write active transactions for commit: {}", e)
-            }
-        })?;
-
-        let mut context = active_transactions.remove(transaction_id)
-            .ok_or_else(|| DatabaseError::TransactionError {
-                message: format!("Transaction {} not found or already completed", transaction_id)
+        let mut context = {
+            let mut active_transactions = self.active_transactions.write().map_err(|e| {
+                DatabaseError::LockError {
+                    reason: format!("Failed to write active transactions for commit: {}", e)
+                }
             })?;
+
+            active_transactions.remove(transaction_id)
+                .ok_or_else(|| DatabaseError::TransactionError {
+                    message: format!("Transaction {} not found or already completed", transaction_id)
+                })?
+        }; // active_transactions guard burada scope'tan çıkıyor
 
         // Timeout kontrolü
         if context.is_timed_out() {
-            drop(active_transactions); // Lock'ı serbest bırak
             self.abort_transaction_internal(transaction_id, context).await?;
             return Err(DatabaseError::TransactionError {
                 message: format!("Transaction {} timed out", transaction_id)
@@ -924,8 +927,6 @@ impl TransactionManager {
 
         // Status güncelle
         context.status = TransactionStatus::Committed;
-
-        drop(active_transactions); // Lock'ı serbest bırak
 
         // Version'ları commit et
         self.version_manager.commit_transaction(transaction_id)?;
@@ -948,18 +949,18 @@ impl TransactionManager {
     /// Transaction rollback
     pub async fn rollback_transaction(&self, transaction_id: &TransactionId) -> Result<(), DatabaseError> {
         // Transaction context'i al
-        let mut active_transactions = self.active_transactions.write().map_err(|e| {
-            DatabaseError::LockError {
-                reason: format!("Failed to write active transactions for rollback: {}", e)
-            }
-        })?;
-
-        let context = active_transactions.remove(transaction_id)
-            .ok_or_else(|| DatabaseError::TransactionError {
-                message: format!("Transaction {} not found or already completed", transaction_id)
+        let context = {
+            let mut active_transactions = self.active_transactions.write().map_err(|e| {
+                DatabaseError::LockError {
+                    reason: format!("Failed to write active transactions for rollback: {}", e)
+                }
             })?;
 
-        drop(active_transactions); // Lock'ı serbest bırak
+            active_transactions.remove(transaction_id)
+                .ok_or_else(|| DatabaseError::TransactionError {
+                    message: format!("Transaction {} not found or already completed", transaction_id)
+                })?
+        }; // active_transactions guard burada scope'tan çıkıyor
 
         self.abort_transaction_internal(transaction_id, context).await?;
 
@@ -1105,28 +1106,30 @@ impl TransactionManager {
 
     /// Active transaction'ları temizle (timeout olanları abort et)
     pub async fn cleanup_timed_out_transactions(&self) -> Result<usize, DatabaseError> {
-        let mut active_transactions = self.active_transactions.write().map_err(|e| {
-            DatabaseError::LockError {
-                reason: format!("Failed to write active transactions for cleanup: {}", e)
-            }
-        })?;
+        let timed_out_transactions = {
+            let mut active_transactions = self.active_transactions.write().map_err(|e| {
+                DatabaseError::LockError {
+                    reason: format!("Failed to write active transactions for cleanup: {}", e)
+                }
+            })?;
 
-        let mut timed_out_transactions = Vec::new();
+            let mut timed_out_transactions = Vec::new();
 
-        for (transaction_id, context) in active_transactions.iter() {
-            if context.is_timed_out() {
-                timed_out_transactions.push((*transaction_id, context.clone()));
+            for (transaction_id, context) in active_transactions.iter() {
+                if context.is_timed_out() {
+                    timed_out_transactions.push((*transaction_id, context.clone()));
+                }
             }
-        }
+
+            // Timed out transaction'ları kaldır
+            for (transaction_id, _) in &timed_out_transactions {
+                active_transactions.remove(transaction_id);
+            }
+
+            timed_out_transactions
+        }; // active_transactions guard burada scope'tan çıkıyor
 
         let cleanup_count = timed_out_transactions.len();
-
-        // Timed out transaction'ları kaldır
-        for (transaction_id, _) in &timed_out_transactions {
-            active_transactions.remove(transaction_id);
-        }
-
-        drop(active_transactions); // Lock'ı serbest bırak
 
         // Her birini abort et
         for (transaction_id, context) in timed_out_transactions {
