@@ -1,0 +1,32 @@
+{
+  "name": "products",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "price",
+      "data_type": "INT"
+    }
+  ],
+  "rows": [
+    {
+      "data": {
+        "id": {
+          "Integer": 1
+        },
+        "name": {
+          "Text": "Laptop"
+        },
+        "price": {
+          "Integer": 15000
+        }
+      }
+    }
+  ]
+}

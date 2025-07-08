@@ -1,0 +1,58 @@
+{
+  "name": "users",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "email",
+      "data_type": "TEXT"
+    }
+  ],
+  "rows": [
+    {
+      "data": {
+        "name": {
+          "Text": "Ayşe"
+        },
+        "id": {
+          "Integer": 2
+        },
+        "email": {
+          "Text": "ayse@example.com"
+        }
+      }
+    },
+    {
+      "data": {
+        "name": {
+          "Text": "Mehmet"
+        },
+        "email": {
+          "Text": "updated@example.com"
+        },
+        "id": {
+          "Integer": 3
+        }
+      }
+    },
+    {
+      "data": {
+        "email": {
+          "Text": "fatma@example.com"
+        },
+        "name": {
+          "Text": "Fatma"
+        },
+        "id": {
+          "Integer": 4
+        }
+      }
+    }
+  ]
+}

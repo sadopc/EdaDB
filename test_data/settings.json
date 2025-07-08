@@ -1,0 +1,45 @@
+{
+  "name": "settings",
+  "columns": [
+    {
+      "name": "key",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "value",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "active",
+      "data_type": "BOOL"
+    }
+  ],
+  "rows": [
+    {
+      "data": {
+        "key": {
+          "Text": "debug_mode"
+        },
+        "active": {
+          "Boolean": true
+        },
+        "value": {
+          "Text": "enabled"
+        }
+      }
+    },
+    {
+      "data": {
+        "active": {
+          "Boolean": false
+        },
+        "key": {
+          "Text": "maintenance"
+        },
+        "value": {
+          "Text": "scheduled"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "employees",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "salary",
+      "data_type": "INT"
+    },
+    {
+      "name": "department",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "active",
+      "data_type": "BOOL"
+    }
+  ],
+  "rows": [
+    {
+      "data": {
+        "department": {
+          "Text": "Marketing"
+        },
+        "active": {
+          "Boolean": true
+        },
+        "salary": {
+          "Integer": 6000
+        },
+        "name": {
+          "Text": "Jane Smith"
+        },
+        "id": {
+          "Integer": 2
+        }
+      }
+    },
+    {
+      "data": {
+        "id": {
+          "Integer": 4
+        },
+        "active": {
+          "Boolean": true
+        },
+        "name": {
+          "Text": "Alice Brown"
+        },
+        "department": {
+          "Text": "Senior Management"
+        },
+        "salary": {
+          "Integer": 8000
+        }
+      }
+    }
+  ]
+}

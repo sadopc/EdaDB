@@ -1,0 +1,14 @@
+{
+  "name": "test_table",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "description",
+      "data_type": "TEXT"
+    }
+  ],
+  "rows": []
+}

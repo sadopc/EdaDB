@@ -1,0 +1,32 @@
+{
+  "name": "students",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "user_id",
+      "data_type": "INT"
+    },
+    {
+      "name": "total",
+      "data_type": "TEXT"
+    }
+  ],
+  "rows": [
+    {
+      "data": {
+        "total": {
+          "Text": "121212"
+        },
+        "user_id": {
+          "Integer": 5
+        },
+        "id": {
+          "Integer": 3
+        }
+      }
+    }
+  ]
+}
