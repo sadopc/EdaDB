@@ -74,7 +74,7 @@ The **parallel execution engine** automatically distributes work across multiple
 
 ### Building from Source
 ```bash
-git clone https://github.com/yourusername/sql-database-engine.git
+git clone https://github.com/sadopc/EdaDB.git
 cd sql-database-engine
 cargo build --release
 ```
