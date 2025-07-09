@@ -10,5 +10,19 @@
       "data_type": "TEXT"
     }
   ],
-  "rows": []
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "",
+    "column_stats": {},
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T05:19:33.891628231+00:00",
+    "last_updated": "2025-07-09T05:19:33.891628696+00:00"
+  }
 }

@@ -17,11 +17,11 @@
   "rows": [
     {
       "data": {
-        "active": {
-          "Boolean": true
-        },
         "value": {
           "Text": "enabled"
+        },
+        "active": {
+          "Boolean": true
         },
         "key": {
           "Text": "debug_mode"
@@ -33,13 +33,40 @@
         "key": {
           "Text": "maintenance"
         },
-        "value": {
-          "Text": "scheduled"
-        },
         "active": {
           "Boolean": false
+        },
+        "value": {
+          "Text": "scheduled"
         }
       }
     }
-  ]
+  ],
+  "indexes": {},
+  "stats": {
+    "table_name": "",
+    "column_stats": {},
+    "index_usage_stats": {},
+    "query_stats": {
+      "SELECT *": {
+        "query_pattern": "SELECT *",
+        "execution_count": 1,
+        "total_execution_time_ns": 3446,
+        "avg_execution_time_ns": 3446.0,
+        "min_execution_time_ns": 3446,
+        "max_execution_time_ns": 3446,
+        "rows_returned_total": 2,
+        "avg_rows_returned": 2.0,
+        "last_executed": "2025-07-09T05:19:33.891751973+00:00",
+        "created_at": "2025-07-09T05:19:33.891751504+00:00"
+      }
+    },
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 1,
+    "created_at": "2025-07-09T05:19:33.891362529+00:00",
+    "last_updated": "2025-07-09T05:19:33.891752416+00:00"
+  }
 }

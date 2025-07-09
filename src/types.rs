@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum DataType {
@@ -38,12 +39,58 @@ impl Column {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TypedValue {
     Integer(i64),
     Text(String),
     Boolean(bool),
     Null,
+}
+
+impl PartialOrd for TypedValue {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for TypedValue {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        use std::cmp::Ordering;
+        match (self, other) {
+            // Null is always the smallest
+            (TypedValue::Null, TypedValue::Null) => Ordering::Equal,
+            (TypedValue::Null, _) => Ordering::Less,
+            (_, TypedValue::Null) => Ordering::Greater,
+            
+            // Boolean comparisons
+            (TypedValue::Boolean(a), TypedValue::Boolean(b)) => a.cmp(b),
+            
+            // Integer comparisons
+            (TypedValue::Integer(a), TypedValue::Integer(b)) => a.cmp(b),
+            
+            // Text comparisons
+            (TypedValue::Text(a), TypedValue::Text(b)) => a.cmp(b),
+            
+            // Cross-type comparisons: Boolean < Integer < Text
+            (TypedValue::Boolean(_), TypedValue::Integer(_)) => Ordering::Less,
+            (TypedValue::Boolean(_), TypedValue::Text(_)) => Ordering::Less,
+            (TypedValue::Integer(_), TypedValue::Boolean(_)) => Ordering::Greater,
+            (TypedValue::Integer(_), TypedValue::Text(_)) => Ordering::Less,
+            (TypedValue::Text(_), TypedValue::Boolean(_)) => Ordering::Greater,
+            (TypedValue::Text(_), TypedValue::Integer(_)) => Ordering::Greater,
+        }
+    }
+}
+
+impl fmt::Display for TypedValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TypedValue::Integer(i) => write!(f, "{}", i),
+            TypedValue::Text(s) => write!(f, "{}", s),
+            TypedValue::Boolean(b) => write!(f, "{}", b),
+            TypedValue::Null => write!(f, "NULL"),
+        }
+    }
 }
 
 impl TypedValue {
@@ -79,14 +126,7 @@ impl TypedValue {
         }
     }
 
-    pub fn to_string(&self) -> String {
-        match self {
-            TypedValue::Integer(i) => i.to_string(),
-            TypedValue::Text(s) => s.clone(),
-            TypedValue::Boolean(b) => b.to_string(),
-            TypedValue::Null => "NULL".to_string(),
-        }
-    }
+
 
     pub fn get_type(&self) -> Option<DataType> {
         match self {

@@ -1,0 +1,1 @@
+cargo:rustc-env=MIME_TYPES_GENERATED_PATH=/home/serdar/Desktop/işe yarar kodlar/python kodları/musterirapor/target/release/build/mime_guess-e59206cc532ad334/out/mime_types_generated.rs

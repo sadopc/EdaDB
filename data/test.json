@@ -1,0 +1,45 @@
+{
+  "name": "test",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "age",
+      "data_type": "INT"
+    }
+  ],
+  "rows": [],
+  "indexes": {
+    "age": {
+      "BTree": {
+        "column_name": "age",
+        "index_data": {}
+      }
+    },
+    "name": {
+      "Hash": {
+        "column_name": "name",
+        "index_data": {}
+      }
+    }
+  },
+  "stats": {
+    "table_name": "",
+    "column_stats": {},
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T05:19:33.891647428+00:00",
+    "last_updated": "2025-07-09T05:19:33.891647877+00:00"
+  }
+}

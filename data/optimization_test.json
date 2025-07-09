@@ -1,0 +1,91 @@
+{
+  "name": "optimization_test",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "age",
+      "data_type": "INT"
+    },
+    {
+      "name": "score",
+      "data_type": "INT"
+    },
+    {
+      "name": "active",
+      "data_type": "BOOL"
+    }
+  ],
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "optimization_test",
+    "column_stats": {
+      "name": {
+        "column_name": "name",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:29:30.557243051+00:00"
+      },
+      "active": {
+        "column_name": "active",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:29:30.557250549+00:00"
+      },
+      "score": {
+        "column_name": "score",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:29:30.557245793+00:00"
+      },
+      "age": {
+        "column_name": "age",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:29:30.557244576+00:00"
+      },
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:29:30.557235852+00:00"
+      }
+    },
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T06:29:30.557252056+00:00",
+    "last_updated": "2025-07-09T06:29:30.557252807+00:00"
+  }
+}

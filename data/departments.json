@@ -1,0 +1,63 @@
+{
+  "name": "departments",
+  "columns": [
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "budget",
+      "data_type": "INT"
+    },
+    {
+      "name": "manager",
+      "data_type": "TEXT"
+    }
+  ],
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "departments",
+    "column_stats": {
+      "name": {
+        "column_name": "name",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T07:18:10.750847755+00:00"
+      },
+      "manager": {
+        "column_name": "manager",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T07:18:10.750851491+00:00"
+      },
+      "budget": {
+        "column_name": "budget",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T07:18:10.750850754+00:00"
+      }
+    },
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T07:18:10.750852306+00:00",
+    "last_updated": "2025-07-09T07:18:10.750852712+00:00"
+  }
+}

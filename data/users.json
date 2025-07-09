@@ -8,49 +8,26 @@
     {
       "name": "name",
       "data_type": "TEXT"
-    },
-    {
-      "name": "email",
-      "data_type": "TEXT"
     }
   ],
   "rows": [
     {
       "data": {
-        "email": {
-          "Text": "ayse@example.com"
+        "name": {
+          "Text": "Ali"
+        },
+        "id": {
+          "Integer": 1
+        }
+      }
+    },
+    {
+      "data": {
+        "name": {
+          "Text": "Veli"
         },
         "id": {
           "Integer": 2
-        },
-        "name": {
-          "Text": "Ayşe"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "updated@example.com"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 4
-        },
-        "name": {
-          "Text": "Fatma"
-        },
-        "email": {
-          "Text": "fatma@example.com"
         }
       }
     },
@@ -61,375 +38,35 @@
         },
         "name": {
           "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        }
-      }
-    },
-    {
-      "data": {
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "id": {
-          "Integer": 3
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "name": {
-          "Text": "Mehmet"
-        }
-      }
-    },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "mehmet@example.com"
-        },
-        "id": {
-          "Integer": 3
         }
       }
     }
-  ]
+  ],
+  "indexes": {},
+  "stats": {
+    "table_name": "",
+    "column_stats": {},
+    "index_usage_stats": {},
+    "query_stats": {
+      "SELECT *": {
+        "query_pattern": "SELECT *",
+        "execution_count": 2,
+        "total_execution_time_ns": 26534,
+        "avg_execution_time_ns": 13267.0,
+        "min_execution_time_ns": 10747,
+        "max_execution_time_ns": 15787,
+        "rows_returned_total": 4,
+        "avg_rows_returned": 2.0,
+        "last_executed": "2025-07-09T06:04:54.166534639+00:00",
+        "created_at": "2025-07-09T05:19:33.891721974+00:00"
+      }
+    },
+    "total_rows": 1,
+    "total_inserts": 1,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 2,
+    "created_at": "2025-07-09T05:19:33.891325421+00:00",
+    "last_updated": "2025-07-09T06:05:17.353416526+00:00"
+  }
 }

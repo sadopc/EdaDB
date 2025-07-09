@@ -1,0 +1,100 @@
+{
+  "name": "test_stats",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "name",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "age",
+      "data_type": "INT"
+    }
+  ],
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "test_stats",
+    "column_stats": {
+      "age": {
+        "column_name": "age",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:00:33.754558670+00:00"
+      },
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:00:33.754546166+00:00"
+      },
+      "name": {
+        "column_name": "name",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T06:00:33.754556862+00:00"
+      }
+    },
+    "index_usage_stats": {},
+    "query_stats": {
+      "SELECT * WHERE id = ?": {
+        "query_pattern": "SELECT * WHERE id = ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 9276,
+        "avg_execution_time_ns": 9276.0,
+        "min_execution_time_ns": 9276,
+        "max_execution_time_ns": 9276,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T06:01:09.893670967+00:00",
+        "created_at": "2025-07-09T06:01:09.893669857+00:00"
+      },
+      "SELECT * WHERE age > ?": {
+        "query_pattern": "SELECT * WHERE age > ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 2944,
+        "avg_execution_time_ns": 2944.0,
+        "min_execution_time_ns": 2944,
+        "max_execution_time_ns": 2944,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T06:01:09.893713338+00:00",
+        "created_at": "2025-07-09T06:01:09.893712798+00:00"
+      },
+      "SELECT * WHERE age = ?": {
+        "query_pattern": "SELECT * WHERE age = ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 1224,
+        "avg_execution_time_ns": 1224.0,
+        "min_execution_time_ns": 1224,
+        "max_execution_time_ns": 1224,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T06:01:09.893736054+00:00",
+        "created_at": "2025-07-09T06:01:09.893735575+00:00"
+      }
+    },
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 3,
+    "created_at": "2025-07-09T06:00:33.754560165+00:00",
+    "last_updated": "2025-07-09T06:01:09.893736490+00:00"
+  }
+}

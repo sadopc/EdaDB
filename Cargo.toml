@@ -12,4 +12,6 @@ tokio = { version = "1.0", features = ["full"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["cors", "fs"] }
 chrono = { version = "0.4", features = ["serde"] }
-sysinfo = "0.30" 
+sysinfo = "0.30"
+regex = "1.0"
+rayon = "1.8" 

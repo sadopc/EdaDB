@@ -10,49 +10,70 @@
       "data_type": "TEXT"
     },
     {
-      "name": "email",
-      "data_type": "TEXT"
+      "name": "age",
+      "data_type": "INT"
+    },
+    {
+      "name": "active",
+      "data_type": "BOOL"
     }
   ],
-  "rows": [
-    {
-      "data": {
-        "name": {
-          "Text": "Ayşe"
-        },
-        "id": {
-          "Integer": 2
-        },
-        "email": {
-          "Text": "ayse@example.com"
-        }
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "users",
+    "column_stats": {
+      "active": {
+        "column_name": "active",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.767869828+00:00"
+      },
+      "name": {
+        "column_name": "name",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.767868136+00:00"
+      },
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.767858334+00:00"
+      },
+      "age": {
+        "column_name": "age",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.767868914+00:00"
       }
     },
-    {
-      "data": {
-        "name": {
-          "Text": "Mehmet"
-        },
-        "email": {
-          "Text": "updated@example.com"
-        },
-        "id": {
-          "Integer": 3
-        }
-      }
-    },
-    {
-      "data": {
-        "email": {
-          "Text": "fatma@example.com"
-        },
-        "name": {
-          "Text": "Fatma"
-        },
-        "id": {
-          "Integer": 4
-        }
-      }
-    }
-  ]
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T09:56:10.767871641+00:00",
+    "last_updated": "2025-07-09T09:56:10.767872143+00:00"
+  },
+  "storage_format": "RowBased",
+  "column_store": null
 }

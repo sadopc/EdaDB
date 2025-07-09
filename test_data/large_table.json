@@ -1,0 +1,79 @@
+{
+  "name": "large_table",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "value",
+      "data_type": "INT"
+    },
+    {
+      "name": "category",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "active",
+      "data_type": "BOOL"
+    }
+  ],
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "large_table",
+    "column_stats": {
+      "category": {
+        "column_name": "category",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.803251315+00:00"
+      },
+      "active": {
+        "column_name": "active",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.803252033+00:00"
+      },
+      "value": {
+        "column_name": "value",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.803250497+00:00"
+      },
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.803247204+00:00"
+      }
+    },
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T09:56:10.803253690+00:00",
+    "last_updated": "2025-07-09T09:56:10.803254133+00:00"
+  },
+  "storage_format": "RowBased",
+  "column_store": null
+}

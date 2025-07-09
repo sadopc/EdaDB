@@ -1,0 +1,93 @@
+{
+  "name": "sales",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "product",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "amount",
+      "data_type": "INT"
+    },
+    {
+      "name": "date",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "region",
+      "data_type": "TEXT"
+    }
+  ],
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "sales",
+    "column_stats": {
+      "product": {
+        "column_name": "product",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:14.768719758+00:00"
+      },
+      "amount": {
+        "column_name": "amount",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:14.768720733+00:00"
+      },
+      "region": {
+        "column_name": "region",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:14.768723375+00:00"
+      },
+      "date": {
+        "column_name": "date",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:14.768721471+00:00"
+      },
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:14.768712696+00:00"
+      }
+    },
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T09:56:14.768724203+00:00",
+    "last_updated": "2025-07-09T09:56:14.768724680+00:00"
+  },
+  "storage_format": "RowBased",
+  "column_store": null
+}

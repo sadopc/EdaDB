@@ -1,6 +1,6 @@
 use crate::database::Database;
 use crate::executor::QueryResult;
-use std::io::{self, Write};
+use std::io::{self, Write, IsTerminal};
 use std::path::Path;
 
 /// CLI komutları
@@ -44,16 +44,29 @@ impl DatabaseCli {
     
     /// Ana CLI döngüsünü başlat
     pub fn run(&mut self) {
-        self.print_welcome();
+        let is_interactive = io::stdin().is_terminal();
+        
+        if is_interactive {
+            self.print_welcome();
+        }
         
         loop {
-            // Prompt göster
-            print!("sql> ");
-            io::stdout().flush().unwrap();
+            // Interactive modda prompt göster
+            if is_interactive {
+                print!("sql> ");
+                io::stdout().flush().unwrap();
+            }
             
             // Kullanıcı girişini al
             let mut input = String::new();
             match io::stdin().read_line(&mut input) {
+                Ok(0) => {
+                    // EOF reached (pipe ended)
+                    if !is_interactive {
+                        break;
+                    }
+                    continue;
+                }
                 Ok(_) => {
                     let input = input.trim();
                     
@@ -62,24 +75,45 @@ impl DatabaseCli {
                         continue;
                     }
                     
-                    // Komut parse et ve çalıştır
-                    match self.parse_command(input) {
-                        Ok(CliCommand::Quit) => {
-                            println!("👋 Güle güle!");
-                            break;
+                    // Semicolon ile ayrılmış komutları parse et
+                    let commands: Vec<&str> = input.split(';').collect();
+                    for cmd in commands {
+                        let cmd = cmd.trim();
+                        if cmd.is_empty() {
+                            continue;
                         }
-                        Ok(command) => {
-                            if let Err(e) = self.execute_command(command) {
-                                eprintln!("❌ Hata: {}", e);
+                        
+                        // Komut parse et ve çalıştır
+                        match self.parse_command(cmd) {
+                            Ok(CliCommand::Quit) => {
+                                if is_interactive {
+                                    println!("👋 Güle güle!");
+                                }
+                                return;
                             }
-                        }
-                        Err(e) => {
-                            eprintln!("❌ Komut parse hatası: {}", e);
+                            Ok(command) => {
+                                if let Err(e) = self.execute_command(command) {
+                                    if is_interactive {
+                                        eprintln!("❌ Hata: {}", e);
+                                    } else {
+                                        eprintln!("Error: {}", e);
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                if is_interactive {
+                                    eprintln!("❌ Komut parse hatası: {}", e);
+                                } else {
+                                    eprintln!("Parse error: {}", e);
+                                }
+                            }
                         }
                     }
                 }
                 Err(e) => {
-                    eprintln!("❌ Girdi okuma hatası: {}", e);
+                    if is_interactive {
+                        eprintln!("❌ Girdi okuma hatası: {}", e);
+                    }
                     break;
                 }
             }

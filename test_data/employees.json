@@ -10,56 +10,70 @@
       "data_type": "TEXT"
     },
     {
-      "name": "salary",
-      "data_type": "INT"
-    },
-    {
       "name": "department",
       "data_type": "TEXT"
     },
     {
-      "name": "active",
-      "data_type": "BOOL"
+      "name": "salary",
+      "data_type": "INT"
     }
   ],
-  "rows": [
-    {
-      "data": {
-        "department": {
-          "Text": "Marketing"
-        },
-        "active": {
-          "Boolean": true
-        },
-        "salary": {
-          "Integer": 6000
-        },
-        "name": {
-          "Text": "Jane Smith"
-        },
-        "id": {
-          "Integer": 2
-        }
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "employees",
+    "column_stats": {
+      "department": {
+        "column_name": "department",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.783861028+00:00"
+      },
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.783855852+00:00"
+      },
+      "salary": {
+        "column_name": "salary",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.783861743+00:00"
+      },
+      "name": {
+        "column_name": "name",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.783860211+00:00"
       }
     },
-    {
-      "data": {
-        "id": {
-          "Integer": 4
-        },
-        "active": {
-          "Boolean": true
-        },
-        "name": {
-          "Text": "Alice Brown"
-        },
-        "department": {
-          "Text": "Senior Management"
-        },
-        "salary": {
-          "Integer": 8000
-        }
-      }
-    }
-  ]
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T09:56:10.783863352+00:00",
+    "last_updated": "2025-07-09T09:56:10.783863822+00:00"
+  },
+  "storage_format": "RowBased",
+  "column_store": null
 }

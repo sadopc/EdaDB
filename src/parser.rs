@@ -8,6 +8,7 @@ use nom::{
     IResult,
 };
 use crate::types::DataType;
+use crate::table::IndexType;
 
 // AST Node tanımları
 #[derive(Debug, Clone, PartialEq)]
@@ -15,6 +16,11 @@ pub enum SqlStatement {
     CreateTable {
         table_name: String,
         columns: Vec<ColumnDefinition>,
+    },
+    CreateIndex {
+        table_name: String,
+        column_name: String,
+        index_type: IndexType,
     },
     Insert {
         table_name: String,
@@ -37,6 +43,33 @@ pub enum SqlStatement {
     DropTable {
         table_name: String,
     },
+    ShowStats {
+        table_name: String,
+    },
+    Explain {
+        statement: Box<SqlStatement>,
+    },
+    SetStorageFormat {
+        table_name: String,
+        format: String, // "ROW", "COLUMN", or "HYBRID"
+    },
+    ShowStorageInfo {
+        table_name: String,
+    },
+    CompressColumns {
+        table_name: String,
+    },
+    AnalyticalQuery {
+        table_name: String,
+        operation: String, // "COUNT", "SUM", "AVG", "MIN", "MAX"
+        column_name: String,
+    },
+    BeginTransaction {
+        isolation_level: Option<String>, // "READ_COMMITTED", "REPEATABLE_READ", "SERIALIZABLE"
+    },
+    CommitTransaction,
+    RollbackTransaction,
+    ShowTransactions,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -94,12 +127,23 @@ pub fn parse_sql(input: &str) -> Result<SqlStatement, String> {
 
 fn sql_statement(input: &str) -> IResult<&str, SqlStatement> {
     alt((
+        explain_statement,
         create_table_statement,
+        create_index_statement,
         insert_statement,
         select_statement,
         update_statement,
         delete_statement,
         drop_table_statement,
+        show_stats_statement,
+        set_storage_format_statement,
+        show_storage_info_statement,
+        compress_columns_statement,
+        analytical_query_statement,
+        begin_transaction_statement,
+        commit_transaction_statement,
+        rollback_transaction_statement,
+        show_transactions_statement,
     ))(input)
 }
 
@@ -125,6 +169,37 @@ fn create_table_statement(input: &str) -> IResult<&str, SqlStatement> {
         SqlStatement::CreateTable {
             table_name: table_name.to_string(),
             columns,
+        },
+    ))
+}
+
+// CREATE INDEX parser
+fn create_index_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("CREATE")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("INDEX")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, table_name) = identifier(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = char('(')(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, column_name) = identifier(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = char(')')(input)?;
+    let (input, _) = multispace0(input)?;
+    
+    // İsteğe bağlı index type parsing (HASH veya BTREE)
+    let (input, index_type) = opt(alt((
+        value(IndexType::Hash, tag_no_case("HASH")),
+        value(IndexType::BTree, tag_no_case("BTREE")),
+    )))(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::CreateIndex {
+            table_name: table_name.to_string(),
+            column_name: column_name.to_string(),
+            index_type: index_type.unwrap_or(IndexType::Hash), // Default to Hash for backward compatibility
         },
     ))
 }
@@ -273,7 +348,133 @@ fn drop_table_statement(input: &str) -> IResult<&str, SqlStatement> {
     ))
 }
 
+// SHOW STATS parser
+fn show_stats_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("SHOW")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("STATS")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, table_name) = identifier(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::ShowStats {
+            table_name: table_name.to_string(),
+        },
+    ))
+}
+
+// EXPLAIN parser
+fn explain_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("EXPLAIN")(input)?;
+    let (input, _) = multispace1(input)?;
+    
+    // Parse the statement to be explained (must be SELECT for now)
+    let (input, statement) = alt((
+        select_statement,
+        // Can be extended to support other statements
+    ))(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::Explain {
+            statement: Box::new(statement),
+        },
+    ))
+}
+
 // Assignment parser (for UPDATE)
+// SET STORAGE FORMAT parser
+fn set_storage_format_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("SET")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("STORAGE")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("FORMAT")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, table_name) = identifier(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, format) = alt((
+        value("ROW", tag_no_case("ROW")),
+        value("COLUMN", tag_no_case("COLUMN")),
+        value("HYBRID", tag_no_case("HYBRID")),
+    ))(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::SetStorageFormat {
+            table_name: table_name.to_string(),
+            format: format.to_string(),
+        },
+    ))
+}
+
+// SHOW STORAGE INFO parser
+fn show_storage_info_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("SHOW")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("STORAGE")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("INFO")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, table_name) = identifier(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::ShowStorageInfo {
+            table_name: table_name.to_string(),
+        },
+    ))
+}
+
+// COMPRESS COLUMNS parser
+fn compress_columns_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("COMPRESS")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("COLUMNS")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, table_name) = identifier(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::CompressColumns {
+            table_name: table_name.to_string(),
+        },
+    ))
+}
+
+// Analytical query parser: SELECT COUNT(column) FROM table
+fn analytical_query_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("SELECT")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, operation) = alt((
+        value("COUNT", tag_no_case("COUNT")),
+        value("SUM", tag_no_case("SUM")),
+        value("AVG", tag_no_case("AVG")),
+        value("MIN", tag_no_case("MIN")),
+        value("MAX", tag_no_case("MAX")),
+    ))(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = char('(')(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, column_name) = identifier(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = char(')')(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("FROM")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, table_name) = identifier(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::AnalyticalQuery {
+            table_name: table_name.to_string(),
+            operation: operation.to_string(),
+            column_name: column_name.to_string(),
+        },
+    ))
+}
+
 fn assignment(input: &str) -> IResult<&str, Assignment> {
     let (input, column) = identifier(input)?;
     let (input, _) = multispace0(input)?;
@@ -446,6 +647,60 @@ mod tests {
     }
 
     #[test]
+    fn test_create_index_parsing() {
+        let input = "CREATE INDEX users (name)";
+        let result = parse_sql(input);
+        
+        assert!(result.is_ok());
+        let statement = result.unwrap();
+        
+        match statement {
+            SqlStatement::CreateIndex { table_name, column_name, index_type } => {
+                assert_eq!(table_name, "users");
+                assert_eq!(column_name, "name");
+                assert_eq!(index_type, IndexType::Hash);
+            }
+            _ => panic!("Expected CreateIndex statement"),
+        }
+    }
+    
+    #[test]
+    fn test_create_btree_index_parsing() {
+        let input = "CREATE INDEX users (age) BTREE";
+        let result = parse_sql(input);
+        
+        assert!(result.is_ok());
+        let statement = result.unwrap();
+        
+        match statement {
+            SqlStatement::CreateIndex { table_name, column_name, index_type } => {
+                assert_eq!(table_name, "users");
+                assert_eq!(column_name, "age");
+                assert_eq!(index_type, IndexType::BTree);
+            }
+            _ => panic!("Expected CreateIndex statement"),
+        }
+    }
+    
+    #[test]
+    fn test_create_hash_index_parsing() {
+        let input = "CREATE INDEX users (name) HASH";
+        let result = parse_sql(input);
+        
+        assert!(result.is_ok());
+        let statement = result.unwrap();
+        
+        match statement {
+            SqlStatement::CreateIndex { table_name, column_name, index_type } => {
+                assert_eq!(table_name, "users");
+                assert_eq!(column_name, "name");
+                assert_eq!(index_type, IndexType::Hash);
+            }
+            _ => panic!("Expected CreateIndex statement"),
+        }
+    }
+
+    #[test]
     fn test_insert_parsing() {
         let sql = "INSERT INTO users VALUES (1, 'John', true)";
         let result = parse_sql(sql).unwrap();
@@ -538,6 +793,19 @@ mod tests {
                 assert!(where_clause.is_none());
             }
             _ => panic!("Expected Delete statement"),
+        }
+    }
+    
+    #[test]
+    fn test_show_stats_parsing() {
+        let sql = "SHOW STATS users";
+        let result = parse_sql(sql).unwrap();
+        
+        match result {
+            SqlStatement::ShowStats { table_name } => {
+                assert_eq!(table_name, "users");
+            }
+            _ => panic!("Expected ShowStats statement"),
         }
     }
 
@@ -715,4 +983,120 @@ mod tests {
             _ => panic!("Expected Delete statement"),
         }
     }
-} 
+
+    #[test]
+    fn test_begin_transaction_parsing() {
+        let sql = "BEGIN TRANSACTION";
+        let result = parse_sql(sql).unwrap();
+        
+        match result {
+            SqlStatement::BeginTransaction { isolation_level } => {
+                assert!(isolation_level.is_none());
+            }
+            _ => panic!("Expected BeginTransaction statement"),
+        }
+    }
+
+    #[test]
+    fn test_begin_transaction_with_isolation_parsing() {
+        let sql = "BEGIN TRANSACTION ISOLATION READ_COMMITTED";
+        let result = parse_sql(sql).unwrap();
+        
+        match result {
+            SqlStatement::BeginTransaction { isolation_level } => {
+                assert_eq!(isolation_level, Some("READ_COMMITTED".to_string()));
+            }
+            _ => panic!("Expected BeginTransaction statement"),
+        }
+    }
+
+    #[test]
+    fn test_commit_transaction_parsing() {
+        let sql = "COMMIT";
+        let result = parse_sql(sql).unwrap();
+        
+        match result {
+            SqlStatement::CommitTransaction => {
+                // Success
+            }
+            _ => panic!("Expected CommitTransaction statement"),
+        }
+    }
+
+    #[test]
+    fn test_rollback_transaction_parsing() {
+        let sql = "ROLLBACK";
+        let result = parse_sql(sql).unwrap();
+        
+        match result {
+            SqlStatement::RollbackTransaction => {
+                // Success
+            }
+            _ => panic!("Expected RollbackTransaction statement"),
+        }
+    }
+
+    #[test]
+    fn test_show_transactions_parsing() {
+        let sql = "SHOW TRANSACTIONS";
+        let result = parse_sql(sql).unwrap();
+        
+        match result {
+            SqlStatement::ShowTransactions => {
+                // Success
+            }
+            _ => panic!("Expected ShowTransactions statement"),
+        }
+    }
+}
+
+// Transaction parser functions
+fn begin_transaction_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("BEGIN")(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = tag_no_case("TRANSACTION")(input)?;
+    let (input, _) = multispace0(input)?;
+    
+    // İsteğe bağlı isolation level
+    let (input, isolation_level) = opt(tuple((
+        multispace1,
+        tag_no_case("ISOLATION"),
+        multispace1,
+        alt((
+            tag_no_case("READ_COMMITTED"),
+            tag_no_case("REPEATABLE_READ"),
+            tag_no_case("SERIALIZABLE"),
+        )),
+    )))(input)?;
+    
+    Ok((
+        input,
+        SqlStatement::BeginTransaction {
+            isolation_level: isolation_level.map(|(_, _, _, level)| level.to_string()),
+        },
+    ))
+}
+
+fn commit_transaction_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("COMMIT")(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = opt(tag_no_case("TRANSACTION"))(input)?;
+    
+    Ok((input, SqlStatement::CommitTransaction))
+}
+
+fn rollback_transaction_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("ROLLBACK")(input)?;
+    let (input, _) = multispace0(input)?;
+    let (input, _) = opt(tag_no_case("TRANSACTION"))(input)?;
+    
+    Ok((input, SqlStatement::RollbackTransaction))
+}
+
+fn show_transactions_statement(input: &str) -> IResult<&str, SqlStatement> {
+    let (input, _) = tag_no_case("SHOW")(input)?;
+    let (input, _) = multispace1(input)?;
+    let (input, _) = tag_no_case("TRANSACTIONS")(input)?;
+    
+    Ok((input, SqlStatement::ShowTransactions))
+}

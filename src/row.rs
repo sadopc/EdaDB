@@ -32,4 +32,12 @@ impl Row {
             None => "NULL".to_string(),
         }
     }
+
+    pub fn from_values(values: Vec<(String, TypedValue)>) -> Self {
+        let mut row = Self::new();
+        for (column, value) in values {
+            row.insert(column, value);
+        }
+        row
+    }
 } 

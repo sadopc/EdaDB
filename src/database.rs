@@ -4,10 +4,13 @@ use crate::types::{DataType, TypedValue};
 use crate::parser::{SqlStatement, SqlValue, ColumnDefinition, WhereClause, Condition, Assignment};
 use crate::executor::{QueryExecutor, QueryResult};
 use crate::errors::DbError;
+use crate::query_planner::QueryCache;
+use crate::transaction::{TransactionManager, TransactionId, IsolationLevel};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+use std::sync::{Arc, RwLock};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Database {
@@ -15,6 +18,12 @@ pub struct Database {
     pub data_directory: String,
     #[serde(skip)]
     executor: QueryExecutor,
+    #[serde(skip)]
+    query_cache: QueryCache,
+    #[serde(skip)]
+    transaction_manager: Arc<RwLock<TransactionManager>>,
+    #[serde(skip)]
+    current_transaction_id: Option<TransactionId>,
 }
 
 /// Veritabanı dump formatı - tek dosyada tüm veri
@@ -49,6 +58,9 @@ impl Database {
             tables: HashMap::new(),
             data_directory: "data".to_string(),
             executor: QueryExecutor::new(),
+            query_cache: QueryCache::new(100, 300), // 100 entries, 5 minutes TTL
+            transaction_manager: Arc::new(RwLock::new(TransactionManager::new())),
+            current_transaction_id: None,
         };
         
         // Veri dizinini oluştur
@@ -67,6 +79,9 @@ impl Database {
             tables: HashMap::new(),
             data_directory,
             executor: QueryExecutor::new(),
+            query_cache: QueryCache::new(100, 300), // 100 entries, 5 minutes TTL
+            transaction_manager: Arc::new(RwLock::new(TransactionManager::new())),
+            current_transaction_id: None,
         };
         
         db.ensure_data_directory();
@@ -271,7 +286,38 @@ impl Database {
 
     /// SQL komutunu çalıştırır - QueryExecutor'ı kullanır
     pub fn execute_sql(&mut self, sql: &str) -> Result<QueryResult, DbError> {
+        // Normalize SQL for cache key
+        let normalized_sql = sql.trim().to_lowercase();
+        
+        // Check cache for read-only queries (SELECT, EXPLAIN, SHOW STATS)
+        if normalized_sql.starts_with("select") || normalized_sql.starts_with("explain") || normalized_sql.starts_with("show stats") {
+            let cache_key = Self::create_cache_key(&normalized_sql);
+            
+            if let Some(cached_result) = self.query_cache.get(&cache_key) {
+                // Parse cached result back
+                if let Ok(result) = serde_json::from_str::<QueryResult>(&cached_result) {
+                    return Ok(result);
+                }
+            }
+        }
+        
+        // Execute query normally
         let result = self.executor.execute_sql(sql, &mut self.tables)?;
+        
+        // Cache SELECT results
+        if normalized_sql.starts_with("select") || normalized_sql.starts_with("explain") || normalized_sql.starts_with("show stats") {
+            let cache_key = Self::create_cache_key(&normalized_sql);
+            if let Ok(json_result) = serde_json::to_string(&result) {
+                self.query_cache.put(cache_key, json_result);
+            }
+        }
+        
+        // Invalidate cache for write operations
+        if normalized_sql.starts_with("insert") || normalized_sql.starts_with("update") || 
+           normalized_sql.starts_with("delete") || normalized_sql.starts_with("create") || 
+           normalized_sql.starts_with("drop") {
+            self.query_cache.clear();
+        }
         
         // Başarılı işlemlerden sonra tabloları kaydet
         match &result {
@@ -292,9 +338,41 @@ impl Database {
         
         Ok(result)
     }
+    
+    /// Creates a cache key from normalized SQL
+    fn create_cache_key(sql: &str) -> String {
+        // Simple pattern matching for cache key generation
+        let mut key = sql.to_string();
+        
+        // Replace specific values with placeholders for better cache hit rates
+        key = key.replace("'", "");
+        key = key.replace("\"", "");
+        
+        // Replace numbers with placeholders
+        key = regex::Regex::new(r"\b\d+\b").unwrap().replace_all(&key, "?").to_string();
+        
+        key
+    }
 
     /// Parse edilmiş AST'yi çalıştırır - QueryExecutor'ı kullanır
     pub fn execute_statement(&mut self, statement: SqlStatement) -> Result<QueryResult, DbError> {
+        // Transaction komutlarını önce kontrol et
+        match &statement {
+            SqlStatement::BeginTransaction { isolation_level } => {
+                return self.execute_begin_transaction(isolation_level);
+            }
+            SqlStatement::CommitTransaction => {
+                return self.execute_commit_transaction();
+            }
+            SqlStatement::RollbackTransaction => {
+                return self.execute_rollback_transaction();
+            }
+            SqlStatement::ShowTransactions => {
+                return self.execute_show_transactions();
+            }
+            _ => {}
+        }
+        
         let result = self.executor.execute_statement(statement, &mut self.tables)?;
         
         // Başarılı işlemlerden sonra tabloları kaydet
@@ -412,6 +490,102 @@ impl Database {
             (TypedValue::Boolean(a), SqlValue::Boolean(b)) => a.cmp(b),
             _ => std::cmp::Ordering::Equal,
         }
+    }
+
+    // Transaction execution functions
+    fn execute_begin_transaction(&mut self, isolation_level: &Option<String>) -> Result<QueryResult, DbError> {
+        let isolation = match isolation_level {
+            Some(level) => match level.as_str() {
+                "READ_COMMITTED" => IsolationLevel::ReadCommitted,
+                "REPEATABLE_READ" => IsolationLevel::RepeatableRead,
+                "SERIALIZABLE" => IsolationLevel::Serializable,
+                _ => IsolationLevel::ReadCommitted, // Default
+            },
+            None => IsolationLevel::ReadCommitted, // Default
+        };
+
+        let mut tx_manager = self.transaction_manager.write().unwrap();
+        let transaction_id = tx_manager.begin_transaction(isolation.clone());
+        self.current_transaction_id = Some(transaction_id);
+
+        Ok(QueryResult::Success {
+            message: format!("Transaction {} started with isolation level {:?}", transaction_id, isolation),
+            execution_time_ms: 0,
+        })
+    }
+
+    fn execute_commit_transaction(&mut self) -> Result<QueryResult, DbError> {
+        let transaction_id = self.current_transaction_id
+            .ok_or_else(|| DbError::ExecutionError("No active transaction to commit".to_string()))?;
+
+        let mut tx_manager = self.transaction_manager.write().unwrap();
+        
+        // Check for deadlocks before committing
+        let deadlocks = tx_manager.detect_deadlocks();
+        if !deadlocks.is_empty() {
+            let aborted = tx_manager.resolve_deadlocks();
+            if aborted.contains(&transaction_id) {
+                self.current_transaction_id = None;
+                return Err(DbError::ExecutionError("Transaction aborted due to deadlock".to_string()));
+            }
+        }
+
+        tx_manager.commit_transaction(transaction_id)
+            .map_err(|e| DbError::ExecutionError(format!("Failed to commit transaction: {}", e)))?;
+
+        self.current_transaction_id = None;
+
+        Ok(QueryResult::Success {
+            message: format!("Transaction {} committed successfully", transaction_id),
+            execution_time_ms: 0,
+        })
+    }
+
+    fn execute_rollback_transaction(&mut self) -> Result<QueryResult, DbError> {
+        let transaction_id = self.current_transaction_id
+            .ok_or_else(|| DbError::ExecutionError("No active transaction to rollback".to_string()))?;
+
+        let mut tx_manager = self.transaction_manager.write().unwrap();
+        tx_manager.rollback_transaction(transaction_id)
+            .map_err(|e| DbError::ExecutionError(format!("Failed to rollback transaction: {}", e)))?;
+
+        self.current_transaction_id = None;
+
+        Ok(QueryResult::Success {
+            message: format!("Transaction {} rolled back successfully", transaction_id),
+            execution_time_ms: 0,
+        })
+    }
+
+    fn execute_show_transactions(&self) -> Result<QueryResult, DbError> {
+        let tx_manager = self.transaction_manager.read().unwrap();
+        
+        let columns = vec!["Transaction ID".to_string(), "State".to_string(), "Isolation Level".to_string(), "Start Time".to_string()];
+        let mut rows = Vec::new();
+
+        for (tx_id, transaction) in tx_manager.get_active_transactions() {
+            let row = vec![
+                tx_id.to_string(),
+                format!("{:?}", transaction.state),
+                format!("{:?}", transaction.isolation_level),
+                transaction.start_timestamp.to_string(),
+            ];
+            rows.push(row);
+        }
+
+        Ok(QueryResult::Select { 
+            columns, 
+            rows,
+            execution_time_ms: 0,
+        })
+    }
+
+    pub fn get_current_transaction_id(&self) -> Option<TransactionId> {
+        self.current_transaction_id
+    }
+
+    pub fn is_in_transaction(&self) -> bool {
+        self.current_transaction_id.is_some()
     }
 }
 

@@ -1,0 +1,79 @@
+{
+  "name": "orders",
+  "columns": [
+    {
+      "name": "id",
+      "data_type": "INT"
+    },
+    {
+      "name": "customer_id",
+      "data_type": "INT"
+    },
+    {
+      "name": "amount",
+      "data_type": "INT"
+    },
+    {
+      "name": "status",
+      "data_type": "TEXT"
+    }
+  ],
+  "rows": [],
+  "indexes": {},
+  "stats": {
+    "table_name": "orders",
+    "column_stats": {
+      "id": {
+        "column_name": "id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.794242645+00:00"
+      },
+      "customer_id": {
+        "column_name": "customer_id",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.794246007+00:00"
+      },
+      "amount": {
+        "column_name": "amount",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.794247138+00:00"
+      },
+      "status": {
+        "column_name": "status",
+        "unique_count": 0,
+        "null_count": 0,
+        "total_count": 0,
+        "min_value": null,
+        "max_value": null,
+        "value_frequency": {},
+        "last_updated": "2025-07-09T09:56:10.794247873+00:00"
+      }
+    },
+    "index_usage_stats": {},
+    "query_stats": {},
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 0,
+    "created_at": "2025-07-09T09:56:10.794249381+00:00",
+    "last_updated": "2025-07-09T09:56:10.794249854+00:00"
+  },
+  "storage_format": "RowBased",
+  "column_store": null
+}

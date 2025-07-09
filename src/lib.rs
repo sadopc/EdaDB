@@ -7,6 +7,10 @@ pub mod errors;
 pub mod executor;
 pub mod web;
 pub mod cli;
+pub mod query_planner;
+pub mod parallel_executor;
+pub mod columnar_storage;
+pub mod transaction;
 
 pub use database::Database;
 pub use table::Table;
@@ -16,4 +20,8 @@ pub use parser::{parse_sql, SqlStatement, SqlValue, ColumnDefinition, WhereClaus
 pub use errors::DbError;
 pub use executor::{QueryExecutor, QueryResult};
 pub use web::{start_server, QueryRequest, QueryResponse};
-pub use cli::DatabaseCli; 
+pub use cli::DatabaseCli;
+pub use query_planner::{QueryPlanner, ExecutionPlan, QueryCache};
+pub use columnar_storage::{ColumnStore, StorageFormat, AggregateOperation, ColumnPredicate, ColumnAnalytics, ColumnarExecutionPlan};
+pub use parallel_executor::{ParallelQueryExecutor, ParallelStats, JoinType};
+pub use transaction::{TransactionManager, Transaction, TransactionState, IsolationLevel, TransactionalTable, TransactionId, RowVersion}; 

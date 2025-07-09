@@ -28,38 +28,137 @@
         "department": {
           "Text": "Marketing"
         },
-        "name": {
-          "Text": "Jane Smith"
-        },
-        "id": {
-          "Integer": 2
-        },
         "salary": {
           "Integer": 6000
         },
         "active": {
           "Boolean": true
+        },
+        "id": {
+          "Integer": 2
+        },
+        "name": {
+          "Text": "Jane Smith"
         }
       }
     },
     {
       "data": {
-        "name": {
-          "Text": "Alice Brown"
-        },
         "id": {
           "Integer": 4
         },
-        "salary": {
-          "Integer": 8000
-        },
         "active": {
           "Boolean": true
+        },
+        "name": {
+          "Text": "Alice Brown"
+        },
+        "salary": {
+          "Integer": 8000
         },
         "department": {
           "Text": "Senior Management"
         }
       }
     }
-  ]
+  ],
+  "indexes": {},
+  "stats": {
+    "table_name": "",
+    "column_stats": {},
+    "index_usage_stats": {},
+    "query_stats": {
+      "SELECT id, name, salary, department, active WHERE (age > ?) AND (salary < ?)": {
+        "query_pattern": "SELECT id, name, salary, department, active WHERE (age > ?) AND (salary < ?)",
+        "execution_count": 1,
+        "total_execution_time_ns": 9361,
+        "avg_execution_time_ns": 9361.0,
+        "min_execution_time_ns": 9361,
+        "max_execution_time_ns": 9361,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T07:18:10.750019356+00:00",
+        "created_at": "2025-07-09T07:18:10.750018611+00:00"
+      },
+      "SELECT name, department WHERE age > ?": {
+        "query_pattern": "SELECT name, department WHERE age > ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 7931,
+        "avg_execution_time_ns": 7931.0,
+        "min_execution_time_ns": 7931,
+        "max_execution_time_ns": 7931,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T07:18:10.743318145+00:00",
+        "created_at": "2025-07-09T07:18:10.743317448+00:00"
+      },
+      "SELECT name, salary WHERE salary > ?": {
+        "query_pattern": "SELECT name, salary WHERE salary > ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 14580,
+        "avg_execution_time_ns": 14580.0,
+        "min_execution_time_ns": 14580,
+        "max_execution_time_ns": 14580,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T07:18:10.739908756+00:00",
+        "created_at": "2025-07-09T07:18:10.739908031+00:00"
+      },
+      "SELECT id, name, salary, department, active": {
+        "query_pattern": "SELECT id, name, salary, department, active",
+        "execution_count": 1,
+        "total_execution_time_ns": 19909,
+        "avg_execution_time_ns": 19909.0,
+        "min_execution_time_ns": 19909,
+        "max_execution_time_ns": 19909,
+        "rows_returned_total": 2,
+        "avg_rows_returned": 2.0,
+        "last_executed": "2025-07-09T07:18:10.741750143+00:00",
+        "created_at": "2025-07-09T07:18:10.741749512+00:00"
+      },
+      "SELECT id, name, salary, department, active WHERE (salary > ?) AND (age < ?)": {
+        "query_pattern": "SELECT id, name, salary, department, active WHERE (salary > ?) AND (age < ?)",
+        "execution_count": 1,
+        "total_execution_time_ns": 9196,
+        "avg_execution_time_ns": 9196.0,
+        "min_execution_time_ns": 9196,
+        "max_execution_time_ns": 9196,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T07:18:10.746692255+00:00",
+        "created_at": "2025-07-09T07:18:10.746691545+00:00"
+      },
+      "SELECT id, name, salary, department, active WHERE department = ?": {
+        "query_pattern": "SELECT id, name, salary, department, active WHERE department = ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 9961,
+        "avg_execution_time_ns": 9961.0,
+        "min_execution_time_ns": 9961,
+        "max_execution_time_ns": 9961,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T07:18:10.745036675+00:00",
+        "created_at": "2025-07-09T07:18:10.745035984+00:00"
+      },
+      "SELECT name, salary WHERE department = ?": {
+        "query_pattern": "SELECT name, salary WHERE department = ?",
+        "execution_count": 1,
+        "total_execution_time_ns": 10992,
+        "avg_execution_time_ns": 10992.0,
+        "min_execution_time_ns": 10992,
+        "max_execution_time_ns": 10992,
+        "rows_returned_total": 0,
+        "avg_rows_returned": 0.0,
+        "last_executed": "2025-07-09T07:18:10.748316682+00:00",
+        "created_at": "2025-07-09T07:18:10.748315553+00:00"
+      }
+    },
+    "total_rows": 0,
+    "total_inserts": 0,
+    "total_updates": 0,
+    "total_deletes": 0,
+    "total_selects": 7,
+    "created_at": "2025-07-09T05:19:33.891297514+00:00",
+    "last_updated": "2025-07-09T07:18:10.750019845+00:00"
+  }
 }
